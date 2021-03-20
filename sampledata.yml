@@ -1,0 +1,52 @@
+arenas:
+  Test:
+    world: world
+    ready: false
+    c1:
+      ==: org.bukkit.Location
+      world: world
+      x: -80.11433506466074
+      y: 69.0
+      z: 52.99941174845928
+      pitch: 6.361792
+      yaw: 6.975952
+    c2:
+      ==: org.bukkit.Location
+      world: world
+      x: -80.11433506466074
+      y: 69.0
+      z: 52.99941174845928
+      pitch: 6.361792
+      yaw: 6.975952
+    runnerspawn:
+      ==: org.bukkit.Location
+      world: world
+      x: -80.11433506466074
+      y: 69.0
+      z: 52.99941174845928
+      pitch: 6.361792
+      yaw: 6.975952
+    killerspawn:
+      ==: org.bukkit.Location
+      world: world
+      x: -80.11433506466074
+      y: 69.0
+      z: 52.99941174845928
+      pitch: 6.361792
+      yaw: 6.975952
+    lobbyspawn:
+      ==: org.bukkit.Location
+      world: world
+      x: -80.11433506466074
+      y: 69.0
+      z: 52.99941174845928
+      pitch: 6.361792
+      yaw: 6.975952
+    escapeloc:
+      ==: org.bukkit.Location
+      world: world
+      x: -80.11433506466074
+      y: 69.0
+      z: 52.99941174845928
+      pitch: 6.361792
+      yaw: 6.975952

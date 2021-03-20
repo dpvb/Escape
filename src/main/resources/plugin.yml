@@ -1,0 +1,13 @@
+name: Escape
+version: ${project.version}
+main: com.bungoh.escape.Escape
+api-version: 1.16
+authors: [ Bungoh ]
+description: Escape Minigame inspired by Dead by Daylight
+
+commands:
+  escape:
+    description: Base Escape Command
+  escapeadmin:
+    aliases: [ea]
+    description: Admin Escape Command
