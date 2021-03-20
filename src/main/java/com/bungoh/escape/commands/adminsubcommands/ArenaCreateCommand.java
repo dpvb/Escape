@@ -2,6 +2,7 @@ package com.bungoh.escape.commands.adminsubcommands;
 
 import com.bungoh.escape.commands.SubCommand;
 import com.bungoh.escape.files.DataFile;
+import com.bungoh.escape.game.Manager;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -29,6 +30,7 @@ public class ArenaCreateCommand extends SubCommand {
             String arenaName = args[1];
 
             if (DataFile.initArena(arenaName, player.getWorld())) {
+                Manager.addArena(arenaName);
                 player.sendMessage(ChatColor.GREEN + "The arena has been successfully created!");
             } else {
                 player.sendMessage(ChatColor.RED + "An arena with that name already exists!");

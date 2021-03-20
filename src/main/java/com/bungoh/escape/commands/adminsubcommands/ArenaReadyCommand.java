@@ -2,6 +2,7 @@ package com.bungoh.escape.commands.adminsubcommands;
 
 import com.bungoh.escape.commands.SubCommand;
 import com.bungoh.escape.files.DataFile;
+import com.bungoh.escape.game.Manager;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -34,11 +35,11 @@ public class ArenaReadyCommand extends SubCommand {
                     player.sendMessage(ChatColor.RED + "That arena is not completely setup yet.");
                     break;
                 case 2:
-                    //Manager.getArena(args[1]).setup();
+                    Manager.getArena(args[1]).setup();
                     player.sendMessage(ChatColor.GREEN + "The arena was set to " + ChatColor.YELLOW + "ready.");
                     break;
                 case 3:
-                    //Manager.getArena(args[1]).setReady(false);
+                    Manager.getArena(args[1]).setReady(false);
                     player.sendMessage(ChatColor.GREEN + "The arena was set to not " + ChatColor.YELLOW + "ready.");
                     break;
                 default:

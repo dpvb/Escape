@@ -2,6 +2,7 @@ package com.bungoh.escape.commands.adminsubcommands;
 
 import com.bungoh.escape.commands.SubCommand;
 import com.bungoh.escape.files.DataFile;
+import com.bungoh.escape.game.Manager;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -36,7 +37,7 @@ public class ArenaRemoveCommand extends SubCommand {
                     player.sendMessage(ChatColor.RED + "You can't do that. The arena is currently in the ready state.");
                     break;
                 case 2:
-                    //Manager.removeArena(Manager.getArena(args[1]));
+                    Manager.removeArena(Manager.getArena(args[1]));
                     player.sendMessage(ChatColor.GREEN + "You successfully removed the " + arenaName + " Arena!");
                     break;
                 default:

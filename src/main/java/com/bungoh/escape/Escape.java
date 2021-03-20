@@ -4,6 +4,7 @@ import com.bungoh.escape.commands.AdminCommandManager;
 import com.bungoh.escape.commands.BaseCommandManager;
 import com.bungoh.escape.files.ConfigFile;
 import com.bungoh.escape.files.DataFile;
+import com.bungoh.escape.game.Manager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Escape extends JavaPlugin {
@@ -18,6 +19,9 @@ public final class Escape extends JavaPlugin {
         //Create File Managers
         new ConfigFile(this);
         new DataFile(this);
+
+        //Create Manager
+        new Manager();
 
         //Register Commands
         getCommand("escape").setExecutor(new BaseCommandManager());

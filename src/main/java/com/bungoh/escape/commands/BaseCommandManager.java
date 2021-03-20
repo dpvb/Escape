@@ -1,5 +1,8 @@
 package com.bungoh.escape.commands;
 
+import com.bungoh.escape.commands.basesubcommands.ArenaJoinCommand;
+import com.bungoh.escape.commands.basesubcommands.ArenaLeaveCommand;
+import com.bungoh.escape.commands.basesubcommands.ArenaListCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,6 +16,9 @@ public class BaseCommandManager implements CommandExecutor {
 
     public BaseCommandManager() {
         subcommands = new ArrayList<>();
+        subcommands.add(new ArenaJoinCommand());
+        subcommands.add(new ArenaLeaveCommand());
+        subcommands.add(new ArenaListCommand());
     }
 
     @Override
