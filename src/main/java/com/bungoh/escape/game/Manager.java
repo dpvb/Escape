@@ -1,6 +1,8 @@
 package com.bungoh.escape.game;
 
+import com.bungoh.escape.files.ConfigFile;
 import com.bungoh.escape.files.DataFile;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -8,9 +10,11 @@ import java.util.ArrayList;
 public class Manager {
 
     private static ArrayList<Arena> arenas;
+    private static Material generatorMaterial;
 
     public Manager() {
         arenas = new ArrayList<>();
+        generatorMaterial = Material.matchMaterial(ConfigFile.getGeneratorBlock());
         for (String name : DataFile.getArenaNames()) {
             arenas.add(new Arena(name));
         }
@@ -60,5 +64,9 @@ public class Manager {
 
     public static ArrayList<Arena> getArenas() {
         return arenas;
+    }
+
+    public static Material getGeneratorMaterial() {
+        return generatorMaterial;
     }
 }

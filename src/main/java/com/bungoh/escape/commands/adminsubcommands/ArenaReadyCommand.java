@@ -1,8 +1,11 @@
 package com.bungoh.escape.commands.adminsubcommands;
 
 import com.bungoh.escape.commands.SubCommand;
+import com.bungoh.escape.files.ConfigFile;
 import com.bungoh.escape.files.DataFile;
 import com.bungoh.escape.game.Manager;
+import com.bungoh.escape.utils.InsufficientGeneratorAmount;
+import com.bungoh.escape.utils.Messages;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -27,23 +30,29 @@ public class ArenaReadyCommand extends SubCommand {
     public void perform(Player player, String[] args) {
 
         if (args.length == 2) {
-            switch (DataFile.arenaToggleReady(args[1])) {
-                case 0:
-                    player.sendMessage(ChatColor.RED + "That arena does not exist!");
+
+            String arenaName = args[1];
+            Messages message = DataFile.arenaToggleReady(arenaName);
+            switch (message) {
+                case ARENA_DOES_NOT_EXIST:
+                case ARENA_NOT_SETUP:
+                    player.sendMessage(ConfigFile.getMessage(message.getPath()));
                     break;
-                case 1:
-                    player.sendMessage(ChatColor.RED + "That arena is not completely setup yet.");
+                case ARENA_READY:
+                    try {
+                        Manager.getArena(args[1]).setup();
+                        player.sendMessage(ConfigFile.getMessage(message.getPath()));
+                    } catch (InsufficientGeneratorAmount e) {
+                        DataFile.arenaToggleReady(arenaName);
+                        player.sendMessage(ConfigFile.getMessage(Messages.ARENA_INSUFFICIENT_GENS.getPath()));
+                    }
                     break;
-                case 2:
-                    Manager.getArena(args[1]).setup();
-                    player.sendMessage(ChatColor.GREEN + "The arena was set to " + ChatColor.YELLOW + "ready.");
-                    break;
-                case 3:
+                case ARENA_NOT_READY:
                     Manager.getArena(args[1]).setReady(false);
-                    player.sendMessage(ChatColor.GREEN + "The arena was set to not " + ChatColor.YELLOW + "ready.");
+                    player.sendMessage(ConfigFile.getMessage(message.getPath()));
                     break;
                 default:
-                    player.sendMessage(ChatColor.RED + "An unknown error occurred with the ready command.");
+                    player.sendMessage(ConfigFile.getMessage(Messages.UNEXPECTED_ERROR.getPath()));
                     break;
             }
         } else {

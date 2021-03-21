@@ -1,3 +1,27 @@
 # Escape by Bungoh
 required-players: 4
 countdown-timer: 30
+generator-block: "REDSTONE_BLOCK"
+generator-amount: 5
+
+messages:
+  arena_does_not_exist: "&cThat arena does not exist!"
+  arena_already_exists: "&cAn arena with that name already exists!"
+  arena_not_setup: "&cThat arena is not completely setup yet"
+  arena_ready: "&aThe arena is &eready!"
+  arena_not_ready: "&aThe arena is &enot ready!"
+  arena_not_editable: "&cThe arena is currently &eready. &cYou can't do that!"
+  arena_created: "&aThe arena has been successfully created!"
+  arena_removed: "&aYou successfully removed the arena!"
+  arena_corner_one_set: "&aCorner 1 was successfully set!"
+  arena_corner_two_set: "&aCorner 2 was successfully set!"
+  arena_escape_set: "&aThe arena escape location was successfully set!"
+  arena_killer_location_set: "&aThe arena killer spawn location was successfully set!"
+  arena_runner_location_set: "&aThe arena runner spawn location was successfully set!"
+  arena_lobby_location_set: "&aThe arena lobby location was successfully set!"
+  arena_not_recruiting: "&aThat game is not recruiting! You can't join!"
+  arena_generator_added: "&aYou successfully added a generator to the arena!"
+  arena_generator_removed: "&aYou successfully removed a generator from the arena!"
+  arena_no_generators_left: "&aThere are no generators remaining in this arena!"
+  arena_insufficient_gens: "&cYou do not have the correct amount of generators setup in the arena!"
+  unexpected_error: "&cAn unexpected error has occurred!"

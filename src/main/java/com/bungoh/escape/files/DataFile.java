@@ -1,13 +1,18 @@
 package com.bungoh.escape.files;
 
 import com.bungoh.escape.Escape;
+import com.bungoh.escape.game.Manager;
+import com.bungoh.escape.utils.Messages;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class DataFile {
@@ -45,38 +50,118 @@ public class DataFile {
      * Sets the ready state of the arena to false.
      * @param name - The unique name of the Arena
      * @param world - The world that the Arena is in
-     * @return true if the arena was created, false if an arena with that name already exists
+     * @return ARENA_CREATED if successfully created or ARENA_ALREADY_EXISTS
      */
-    public static boolean initArena(String name, World world) {
+    public static Messages initArena(String name, World world) {
         if (!arenaExists(name)) {
             config.set("arenas." + name + ".world", world.getName());
             config.set("arenas." + name + ".ready", false);
+            Manager.addArena(name);
             save();
-            return true;
+            return Messages.ARENA_CREATED;
         }
 
-        return false;
+        return Messages.ARENA_ALREADY_EXISTS;
+    }
+
+    /**
+     * Add a generator location to the arena's data
+     * @param name The unique name of the Arena
+     * @param location The location of the generator
+     * @return Proper Message Enumeration
+     */
+    public static Messages addGenerator(String name, Location location) {
+        if (arenaExists(name)) {
+            if (!checkArenaReady(name)) {
+                String path = "arenas." + name + ".gens";
+                List<Location> locations = new ArrayList<>();
+
+                if (config.get(path) != null) {
+                    locations = (List<Location>) config.getList(path);
+                }
+
+                locations.add(location);
+                config.set(path, locations);
+                save();
+                return Messages.ARENA_GENERATOR_ADDED;
+            }
+            return Messages.ARENA_NOT_EDITABLE;
+        }
+        return Messages.ARENA_DOES_NOT_EXIST;
+    }
+
+    /**
+     * Generates the list of Generator locations if the Arena exists
+     * @param name The unique name of the Arena
+     * @return List of Generator Locations or null if the arena does not exist.
+     */
+    public static List<Location> getGeneratorLocations(String name) {
+        if (arenaExists(name)) {
+            String path = "arenas." + name + ".gens";
+            List<Location> locations = new ArrayList<>();
+
+            if (config.get(path) != null) {
+                locations = (List<Location>) config.getList(path);
+            }
+
+            return locations;
+        }
+
+        return null;
+    }
+
+    /**
+     * Removes the last generator location added to the generator location List.
+     * @param name The unique name of the Arena
+     * @return Proper Message Enumeration
+     */
+    public static Messages removeGeneratorLocation(String name) {
+        if (arenaExists(name)) {
+            if (!checkArenaReady(name)) {
+                String path = "arenas." + name + ".gens";
+                List<Location> lastLocations;
+
+                if (config.get(path) == null) {
+                    return Messages.ARENA_NO_GENERATORS_LEFT;
+                } else {
+                    lastLocations = (List<Location>) config.getList(path);
+                    if (lastLocations.size() == 1) {
+                        config.set(path, null);
+                        save();
+                        return Messages.ARENA_NO_GENERATORS_LEFT;
+                    } else {
+                        lastLocations.remove(lastLocations.size() - 1);
+                        System.out.println(lastLocations);
+                        config.set(path, lastLocations);
+                        save();
+                        return Messages.ARENA_GENERATOR_REMOVED;
+                    }
+                }
+            } else {
+                return Messages.ARENA_NOT_EDITABLE;
+            }
+        }
+        return Messages.ARENA_DOES_NOT_EXIST;
     }
 
     /**
      * Sets the lobby location to the arena in the configuration file if the arena exists.
      * @param name - The unique name of the Arena
      * @param location - The target lobby location
-     * @return 0 if the Arena does not exist, 1 if the Arena is in the ready state, and 2 if the Arena successfully
-     * added a lobby spawn.
+     * @return Proper Message Enumeration
      */
-    public static int setArenaLobbySpawn(String name, Location location) {
+    public static Messages setArenaLobbySpawn(String name, Location location) {
         if (arenaExists(name)) {
             if (!checkArenaReady(name)) {
                 String path = "arenas." + name + ".lobbyspawn";
                 config.set(path, location);
                 save();
-                return 2;
+                return Messages.ARENA_LOBBY_LOCATION_SET;
             } else {
-                return 1;
+                return Messages.ARENA_NOT_EDITABLE;
             }
         } else {
-            return 0;
+            return Messages.ARENA_DOES_NOT_EXIST;
         }
     }
 
@@ -162,21 +247,20 @@ public class DataFile {
      * Sets the corner 1 bound the arena in the configuration file if the arena exists.
      * @param name - The unique name of the Arena
      * @param location - The target lobby location
-     * @return 0 if the Arena does not exist, 1 if the Arena is in the ready state, and 2 if the Arena successfully
-     * added the first corner
+     * @return Proper Messages Enumerator
      */
-    public static int setArenaCornerOne(String name, Location location) {
+    public static Messages setArenaCornerOne(String name, Location location) {
         if (arenaExists(name)) {
             if (!checkArenaReady(name)) {
                 String path = "arenas." + name + ".c1";
                 config.set(path, location);
                 save();
-                return 2;
+                return Messages.ARENA_CORNER_ONE_SET;
             } else {
-                return 1;
+                return Messages.ARENA_NOT_EDITABLE;
             }
         } else {
-            return 0;
+            return Messages.ARENA_DOES_NOT_EXIST;
         }
     }
 
@@ -184,21 +268,20 @@ public class DataFile {
      * Sets the corner 2 bound the arena in the configuration file if the arena exists.
      * @param name - The unique name of the Arena
      * @param location - The target lobby location
-     * @return 0 if the Arena does not exist, 1 if the Arena is in the ready state, and 2 if the Arena successfully
-     * added the second corner
+     * @return Proper Messages Enumerator
      */
-    public static int setArenaCornerTwo(String name, Location location) {
+    public static Messages setArenaCornerTwo(String name, Location location) {
         if (arenaExists(name)) {
             if (!checkArenaReady(name)) {
                 String path = "arenas." + name + ".c2";
                 config.set(path, location);
                 save();
-                return 2;
+                return Messages.ARENA_CORNER_TWO_SET;
             } else {
-                return 1;
+                return Messages.ARENA_NOT_EDITABLE;
             }
         } else {
-            return 0;
+            return Messages.ARENA_DOES_NOT_EXIST;
         }
     }
 
@@ -206,21 +289,20 @@ public class DataFile {
      * Sets the runner spawn of the arena in the configuration file if the arena exists.
      * @param name - The unique name of the Arena
      * @param location - The target lobby location
-     * @return 0 if the Arena does not exist, 1 if the Arena is in the ready state, and 2 if the Arena successfully
-     * added the runner spawn
+     * @return Proper Message Enumeration
      */
-    public static int setArenaRunnerSpawn(String name, Location location) {
+    public static Messages setArenaRunnerSpawn(String name, Location location) {
         if (arenaExists(name)) {
             if (!checkArenaReady(name)) {
                 String path = "arenas." + name + ".runnerspawn";
                 config.set(path, location);
                 save();
-                return 2;
+                return Messages.ARENA_RUNNER_LOCATION_SET;
             } else {
-                return 1;
+                return Messages.ARENA_NOT_EDITABLE;
             }
         } else {
-            return 0;
+            return Messages.ARENA_DOES_NOT_EXIST;
         }
     }
 
@@ -228,21 +310,20 @@ public class DataFile {
      * Sets the killer spawn of the arena in the configuration file if the arena exists.
      * @param name - The unique name of the Arena
      * @param location - The target lobby location
-     * @return 0 if the Arena does not exist, 1 if the Arena is in the ready state, and 2 if the Arena successfully
-     * added the killer spawn
+     * @return Proper Message Enumeration
      */
-    public static int setArenaKillerSpawn(String name, Location location) {
+    public static Messages setArenaKillerSpawn(String name, Location location) {
         if (arenaExists(name)) {
             if (!checkArenaReady(name)) {
                 String path = "arenas." + name + ".killerspawn";
                 config.set(path, location);
                 save();
-                return 2;
+                return Messages.ARENA_KILLER_LOCATION_SET;
             } else {
-                return 1;
+                return Messages.ARENA_NOT_EDITABLE;
             }
         } else {
-            return 0;
+            return Messages.ARENA_DOES_NOT_EXIST;
         }
     }
 
@@ -250,53 +331,29 @@ public class DataFile {
      * Sets the escape location of the arena in the configuration file if the arena exists.
      * @param name - The unique name of the Arena
      * @param location - The target lobby location
-     * @return 0 if the Arena does not exist, 1 if the Arena is in the ready state, and 2 if the Arena successfully
-     * added the escape location
+     * @return Proper Messages Enumerator
      */
-    public static int setArenaEscapeLocation(String name, Location location) {
+    public static Messages setArenaEscapeLocation(String name, Location location) {
         if (arenaExists(name)) {
             if (!checkArenaReady(name)) {
                 String path = "arenas." + name + ".escapeloc";
                 config.set(path, location);
                 save();
-                return 2;
+                return Messages.ARENA_ESCAPE_SET;
             } else {
-                return 1;
+                return Messages.ARENA_NOT_EDITABLE;
             }
         } else {
-            return 0;
+            return Messages.ARENA_DOES_NOT_EXIST;
         }
-    }
-
-    /**
-     * Remove the arena lobby location.
-     * @param name The unique name of the Arena
-     * @return 0 if the location was removed, -1 if there is no lobby location, -2 if the Arena does not exist, and
-     * -3 if the Arena is not ready.
-     */
-    public static int removeArenaLobbyLocation(String name) {
-        if (arenaExists(name)) {
-            if (!checkArenaReady(name)) {
-                String path = "arenas." + name + ".lobby";
-                if (config.get(path) == null) {
-                    return -1;
-                }
-                config.set(path, null);
-                save();
-                return 0;
-            }
-            return -3;
-        }
-        return -2;
     }
 
     /**
      * Toggles the ready state of the Arena
      * @param name The unique name of the Arena
-     * @return 0 if the Arena does not exist, 1 if the Arena has completed setup, 2 if the Arena is ready, and 3 if the
-     * Arena is not ready.
+     * @return Appropriate Messages Enumerator
      */
-    public static int arenaToggleReady(String name) {
+    public static Messages arenaToggleReady(String name) {
         if (arenaExists(name)) {
             if (checkArenaSetupCompletion(name)) {
                 String path = "arenas." + name + ".ready";
@@ -305,15 +362,15 @@ public class DataFile {
                 config.set(path, !bool);
                 save();
                 if (!bool) {
-                    return 2; // The Arena is ready.
+                    return Messages.ARENA_READY; // The Arena is ready.
                 } else {
-                    return 3; //The Arena is not ready.
+                    return Messages.ARENA_NOT_READY; //The Arena is not ready.
                 }
             } else {
-                return 1; // The Arena has not completed setup.
+                return Messages.ARENA_NOT_SETUP; // The Arena has not completed setup.
             }
         } else {
-            return 0; // The Arena does not exist.
+            return Messages.ARENA_DOES_NOT_EXIST; // The Arena does not exist.
         }
     }
 
@@ -356,7 +413,7 @@ public class DataFile {
      * @param name The unique name of the Arena
      * @return 0 if the Arena does not exist, 1 if the Arena is in the ready state, and 2 if the arena was successfully removed.
      */
-    public static int removeArena(String name) {
+    public static Messages removeArena(String name) {
         if (arenaExists(name)) {
             if (!checkArenaReady(name)) {
                 if (getArenaAmount() == 1) {
@@ -365,13 +422,17 @@ public class DataFile {
                     config.set("arenas." + name, null);
                 }
                 save();
-                return 2;
+                return Messages.ARENA_REMOVED;
             } else {
-                return 1;
+                return Messages.ARENA_NOT_EDITABLE;
             }
         }
 
-        return 0;
+        return Messages.ARENA_DOES_NOT_EXIST;
+    }
+
+    public static World getWorld(String name) {
+        return Bukkit.getWorld(config.getString("arenas." + name + ".world"));
     }
 
     /**

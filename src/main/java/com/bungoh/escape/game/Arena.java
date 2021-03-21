@@ -2,12 +2,13 @@ package com.bungoh.escape.game;
 
 import com.bungoh.escape.files.ConfigFile;
 import com.bungoh.escape.files.DataFile;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
+import com.bungoh.escape.utils.InsufficientGeneratorAmount;
+import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class Arena {
@@ -19,6 +20,10 @@ public class Arena {
     private Location runnerSpawn;
     private Location killerSpawn;
     private Location escapeLocation;
+    private Location corner1;
+    private Location corner2;
+    private World world;
+    private List<Generator> generators;
 
     private GameState state;
     private Countdown countdown;
@@ -30,8 +35,13 @@ public class Arena {
         this.name = name;
         players = new ArrayList<>();
         ready = DataFile.checkArenaReady(name);
+        world = DataFile.getWorld(name);
         if (ready) {
-            setup();
+            try {
+                setup();
+            } catch (InsufficientGeneratorAmount e) {
+                ready = false;
+            }
         }
     }
 
@@ -39,15 +49,44 @@ public class Arena {
         game.start();
     }
 
-    public void setup() {
-        ready = true;
+    public void setup() throws InsufficientGeneratorAmount {
+        // Set all fixed locations.
         lobbyLocation = DataFile.getArenaLobbySpawn(name);
         runnerSpawn = DataFile.getArenaRunnerSpawn(name);
         killerSpawn = DataFile.getArenaKillerSpawn(name);
         escapeLocation = DataFile.getArenaEscapeLocation(name);
+        corner1 = DataFile.getArenaCornerOne(name);
+        corner2 = DataFile.getArenaCornerTwo(name);
+        //Attempt to locate all generators in area
+        generators = new ArrayList<>();
+        int xMin = Math.min(corner1.getBlockX(), corner2.getBlockX());
+        int xMax = Math.max(corner1.getBlockX(), corner2.getBlockX());
+        int yMin = Math.min(corner1.getBlockY(), corner2.getBlockY());
+        int yMax = Math.max(corner1.getBlockY(), corner2.getBlockY());
+        int zMin = Math.min(corner1.getBlockZ(), corner2.getBlockZ());
+        int zMax = Math.max(corner1.getBlockZ(), corner2.getBlockZ());
+        for (int x = xMin; x <= xMax; x++) {
+            for (int y = yMin; y <= yMax; y++) {
+                for (int z = zMin; z <= zMax; z++) {
+                    Block b = world.getBlockAt(x, y, z);
+                    if (b.getType() == Manager.getGeneratorMaterial()) {
+                        generators.add(new Generator(b));
+                    }
+                }
+            }
+        }
+
+        if (generators.size() != ConfigFile.getGeneratorsRequired()) {
+            throw new InsufficientGeneratorAmount("Insufficient amount of Generators in the Arena");
+        }
+
+        // Set Game State
         state = GameState.RECRUITING;
+        // Instantiate Countdown and Game
         countdown = new Countdown(this);
         game = new Game(this);
+        // Arena is now completely ready
+        ready = true;
     }
 
     public void reset() {
@@ -112,5 +151,29 @@ public class Arena {
 
     public void setReady(boolean ready) {
         this.ready = ready;
+    }
+
+    public Location getLobbyLocation() {
+        return lobbyLocation;
+    }
+
+    public Location getRunnerSpawn() {
+        return runnerSpawn;
+    }
+
+    public Location getKillerSpawn() {
+        return killerSpawn;
+    }
+
+    public Location getEscapeLocation() {
+        return escapeLocation;
+    }
+
+    public Location getCorner1() {
+        return corner1;
+    }
+
+    public Location getCorner2() {
+        return corner2;
     }
 }

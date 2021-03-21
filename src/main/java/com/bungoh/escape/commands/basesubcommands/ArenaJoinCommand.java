@@ -1,8 +1,10 @@
 package com.bungoh.escape.commands.basesubcommands;
 
 import com.bungoh.escape.commands.SubCommand;
+import com.bungoh.escape.files.ConfigFile;
 import com.bungoh.escape.game.Arena;
 import com.bungoh.escape.game.Manager;
+import com.bungoh.escape.utils.Messages;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -33,10 +35,10 @@ public class ArenaJoinCommand extends SubCommand {
                 if (Manager.isRecruiting(arenaName)) {
                     arena.addPlayer(player);
                 } else {
-                    player.sendMessage(ChatColor.RED + "That game is not recruiting! You can not join.");
+                    player.sendMessage(ConfigFile.getMessage(Messages.ARENA_NOT_RECRUITING.getPath()));
                 }
             } else {
-                player.sendMessage(ChatColor.RED + "That arena does not exist!");
+                player.sendMessage(ConfigFile.getMessage(Messages.ARENA_DOES_NOT_EXIST.getPath()));
             }
         } else {
             player.sendMessage(ChatColor.RED + "Invalid usage! Use " + getSyntax());

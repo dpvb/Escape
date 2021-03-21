@@ -2,6 +2,8 @@ package com.bungoh.escape.game;
 
 import org.bukkit.ChatColor;
 
+import java.util.ArrayList;
+
 public class Game {
 
     private Arena arena;

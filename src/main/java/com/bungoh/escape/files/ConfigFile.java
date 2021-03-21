@@ -1,6 +1,7 @@
 package com.bungoh.escape.files;
 
 import com.bungoh.escape.Escape;
+import org.bukkit.ChatColor;
 
 public class ConfigFile {
 
@@ -19,6 +20,18 @@ public class ConfigFile {
 
     public static int getCountdownSeconds() {
         return plugin.getConfig().getInt("countdown-timer");
+    }
+
+    public static String getGeneratorBlock() { return plugin.getConfig().getString("generator-block"); }
+
+    public static int getGeneratorsRequired() { return plugin.getConfig().getInt("generator-amount"); }
+
+    public static String getMessage(String path) {
+        String msg = plugin.getConfig().getString(path);
+        if (msg != null) {
+            return ChatColor.translateAlternateColorCodes('&', msg);
+        }
+        return "";
     }
 
 }

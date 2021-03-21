@@ -1,8 +1,10 @@
 package com.bungoh.escape.commands.adminsubcommands;
 
 import com.bungoh.escape.commands.SubCommand;
+import com.bungoh.escape.files.ConfigFile;
 import com.bungoh.escape.files.DataFile;
 import com.bungoh.escape.game.Manager;
+import com.bungoh.escape.utils.Messages;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -28,20 +30,18 @@ public class ArenaRemoveCommand extends SubCommand {
 
         if (args.length == 2) {
             String arenaName = args[1];
-
-            switch (DataFile.removeArena(arenaName)) {
-                case 0:
-                    player.sendMessage(ChatColor.RED + "That arena does not exist!");
+            Messages message = DataFile.removeArena(arenaName);
+            switch (message) {
+                case ARENA_DOES_NOT_EXIST:
+                case ARENA_NOT_EDITABLE:
+                    player.sendMessage(ConfigFile.getMessage(message.getPath()));
                     break;
-                case 1:
-                    player.sendMessage(ChatColor.RED + "You can't do that. The arena is currently in the ready state.");
-                    break;
-                case 2:
+                case ARENA_REMOVED:
                     Manager.removeArena(Manager.getArena(args[1]));
-                    player.sendMessage(ChatColor.GREEN + "You successfully removed the " + arenaName + " Arena!");
+                    player.sendMessage(ConfigFile.getMessage(message.getPath()));
                     break;
                 default:
-                    player.sendMessage(ChatColor.RED + "An unexpected error occurred when removing the Arena.");
+                    player.sendMessage(ConfigFile.getMessage(Messages.UNEXPECTED_ERROR.getPath()));
             }
         } else {
             player.sendMessage(ChatColor.RED + "Invalid usage! Use " + getSyntax());
