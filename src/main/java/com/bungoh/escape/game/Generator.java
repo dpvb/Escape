@@ -66,7 +66,7 @@ public class Generator {
                     if (!arena.getGame().getKiller().equals(p)) {
                         Block target = p.getTargetBlockExact(radius);
                         if (target != null && target.equals(block)) {
-                            progress += 5;
+                            progress += 50;
                             updateHoloProgress();
                             break;
                         }

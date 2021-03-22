@@ -16,9 +16,9 @@ public class Game {
     private Arena arena;
     private Player killer;
     private Set<Player> runners;
+    private Set<Generator> completedGenerators;
     private Particle.DustOptions doorParticleOptions;
     private BukkitTask particleTask;
-    private Set<Generator> completedGenerators;
     private boolean escapable;
 
     public Game(Arena arena) {
@@ -63,11 +63,19 @@ public class Game {
         int rand = (int) (Math.random() * numPlayers);
         killer = Bukkit.getPlayer(arena.getPlayers().get(rand));
         runners = new HashSet<>();
+
         for (int i = 0; i < numPlayers; i++) {
             if (i != rand) {
-                runners.add(Bukkit.getPlayer(arena.getPlayers().get(i)));
+                Player p = Bukkit.getPlayer(arena.getPlayers().get(i));
+                runners.add(p);
+                p.teleport(arena.getRunnerSpawn());
             }
         }
+        /*
+        APPLY STATUS EFFECTS / ETC
+         */
+
+        killer.teleport(arena.getKillerSpawn());
     }
 
     private void createEscapeDoor() {
@@ -97,9 +105,24 @@ public class Game {
         doorParticleOptions = new Particle.DustOptions(Color.WHITE, 1);
     }
 
+    public void runnerEscaped(Player player) {
+        arena.sendMessage(player.getName() + ChatColor.GREEN + " has escaped!");
+        arena.removePlayer(player);
+    }
+
     public Player getKiller() {
         return killer;
     }
 
+    public boolean isRunner(Player player) {
+        return runners.contains(player);
+    }
 
+    public boolean isEscapable() {
+        return escapable;
+    }
+
+    public Set<Player> getRunners() {
+        return runners;
+    }
 }

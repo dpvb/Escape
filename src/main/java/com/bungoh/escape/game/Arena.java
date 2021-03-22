@@ -7,9 +7,7 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Arena {
 
@@ -68,6 +66,7 @@ public class Arena {
         game = new Game(this);
         // Arena is now completely ready
         ready = true;
+        System.out.println("Arena " + name + " successfully setup.");
     }
 
     public void reset() {
@@ -85,7 +84,10 @@ public class Arena {
         state = GameState.RECRUITING;
         players.clear();
         countdown = new Countdown(this);
+        game.cleanup();
         game = new Game(this);
+
+        System.out.println("Arena " + name + " successfully reset.");
     }
 
     public void addPlayer(Player player) {
@@ -102,11 +104,21 @@ public class Arena {
         players.remove(player.getUniqueId());
         player.teleport(lobbyLocation);
 
-        if (players.size() <= ConfigFile.getRequiredPlayers() && state == GameState.COUNTDOWN) {
-            reset();
+        if (state == GameState.LIVE) {
+            if (players.size() == 0 || game.getKiller().equals(player)) {
+                reset();
+            }
+
+            if (game.isRunner(player)) {
+                if (game.getRunners().size() == 1) {
+                    reset();
+                } else {
+                    game.getRunners().remove(player);
+                }
+            }
         }
 
-        if (players.size() == 0 && state == GameState.LIVE) {
+        if (players.size() < ConfigFile.getRequiredPlayers() && state == GameState.COUNTDOWN) {
             reset();
         }
     }
@@ -188,6 +200,10 @@ public class Arena {
 
     public Location getCorner2() {
         return corner2;
+    }
+
+    public Game getGame() {
+        return game;
     }
 
     public World getWorld() {
