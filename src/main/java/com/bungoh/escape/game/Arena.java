@@ -57,6 +57,7 @@ public class Arena {
         escapeLocation = DataFile.getArenaEscapeLocation(name);
         corner1 = DataFile.getArenaCornerOne(name);
         corner2 = DataFile.getArenaCornerTwo(name);
+        
         //Attempt to locate all generators in area
         generators = new ArrayList<>();
         int xMin = Math.min(corner1.getBlockX(), corner2.getBlockX());
@@ -70,12 +71,13 @@ public class Arena {
                 for (int z = zMin; z <= zMax; z++) {
                     Block b = world.getBlockAt(x, y, z);
                     if (b.getType() == Manager.getGeneratorMaterial()) {
-                        generators.add(new Generator(b));
+                        generators.add(new Generator(b, this));
                     }
                 }
             }
         }
 
+        // Check if the amount of generators is correct
         if (generators.size() != ConfigFile.getGeneratorsRequired()) {
             throw new InsufficientGeneratorAmount("Insufficient amount of Generators in the Arena");
         }
@@ -90,10 +92,17 @@ public class Arena {
     }
 
     public void reset() {
+        //Teleport Players
         for (UUID uuid : players) {
             Bukkit.getPlayer(uuid).teleport(lobbyLocation);
         }
 
+        //Destroy Holograms from Generators
+        for (Generator g : generators) {
+            g.cleanUp();
+        }
+
+        //Reset Arena State
         state = GameState.RECRUITING;
         players.clear();
         countdown = new Countdown(this);
@@ -175,5 +184,13 @@ public class Arena {
 
     public Location getCorner2() {
         return corner2;
+    }
+
+    public World getWorld() {
+        return world;
+    }
+
+    public List<Generator> getGenerators() {
+        return generators;
     }
 }

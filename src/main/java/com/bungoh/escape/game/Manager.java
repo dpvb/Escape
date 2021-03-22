@@ -69,4 +69,10 @@ public class Manager {
     public static Material getGeneratorMaterial() {
         return generatorMaterial;
     }
+
+    public static void resetAllArenas() {
+        for (Arena a : arenas) {
+            a.reset();
+        }
+    }
 }

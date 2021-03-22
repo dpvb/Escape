@@ -16,6 +16,11 @@ public class Game {
         //Set Game State
         arena.setState(GameState.LIVE);
 
+        //Setup Generators
+        for (Generator g : arena.getGenerators()) {
+            g.init();
+        }
+
         //Send message
         arena.sendMessage(ChatColor.GREEN + "The game has started!");
     }
