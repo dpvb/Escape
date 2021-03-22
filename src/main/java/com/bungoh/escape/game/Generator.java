@@ -13,7 +13,7 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class Generator extends BukkitRunnable {
+public class Generator {
 
     private Block block;
     private Arena arena;
@@ -51,32 +51,33 @@ public class Generator extends BukkitRunnable {
             circlePoints.add(new Vector(x, y, z));
         }
 
-        task = this.runTaskTimerAsynchronously(Escape.getPlugin(), 0L, 20L);
-    }
+        task = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (progress == 100) {
+                    finished = true;
+                    cancel();
+                    return;
+                }
 
-    @Override
-    public void run() {
-        if (progress == 100) {
-            finished = true;
-            cancel();
-            return;
-        }
+                for (UUID u : arena.getPlayers()) {
+                    Player p = Bukkit.getPlayer(u);
+                    Block target = p.getTargetBlockExact(radius);
+                    if (target != null && target.equals(block)) {
+                        progress += 5;
+                        updateHoloProgress();
+                        break;
+                    }
+                }
 
-        for (UUID u : arena.getPlayers()) {
-            Player p = Bukkit.getPlayer(u);
-            Block target = p.getTargetBlockExact(radius);
-            if (target != null && target.equals(block)) {
-                progress += 2;
-                updateHoloProgress();
-                break;
+                circleDust = new Particle.DustOptions(Color.fromRGB(255 * progress / 100, 255 * progress / 100, 255 * progress / 100), 1);
+                for (Vector v : circlePoints) {
+                    arena.getWorld().spawnParticle(Particle.REDSTONE, v.toLocation(arena.getWorld()), 25, circleDust);
+                }
             }
-        }
-
-        circleDust = new Particle.DustOptions(Color.fromRGB(255 * progress / 100, 255 * progress / 100, 255 * progress / 100), 1);
-        for (Vector v : circlePoints) {
-            arena.getWorld().spawnParticle(Particle.REDSTONE, v.toLocation(arena.getWorld()), 25, circleDust);
-        }
+        }.runTaskTimerAsynchronously(Escape.getPlugin(), 0L, 20L);
     }
+
 
     public void setupHolograms() {
         holograms.add(produceArmorstand("&aGenerator", block.getLocation().add(0.5, .9, 0.5)));
@@ -100,10 +101,12 @@ public class Generator extends BukkitRunnable {
     }
 
     public void deleteHolograms() {
-        for (ArmorStand h : holograms) {
-            h.remove();
+        if (holograms != null) {
+            for (ArmorStand h : holograms) {
+                h.remove();
+            }
+            holograms.clear();
         }
-        holograms.clear();
     }
 
     private void updateHoloProgress() {

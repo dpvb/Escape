@@ -59,28 +59,7 @@ public class Arena {
         corner2 = DataFile.getArenaCornerTwo(name);
         
         //Attempt to locate all generators in area
-        generators = new ArrayList<>();
-        int xMin = Math.min(corner1.getBlockX(), corner2.getBlockX());
-        int xMax = Math.max(corner1.getBlockX(), corner2.getBlockX());
-        int yMin = Math.min(corner1.getBlockY(), corner2.getBlockY());
-        int yMax = Math.max(corner1.getBlockY(), corner2.getBlockY());
-        int zMin = Math.min(corner1.getBlockZ(), corner2.getBlockZ());
-        int zMax = Math.max(corner1.getBlockZ(), corner2.getBlockZ());
-        for (int x = xMin; x <= xMax; x++) {
-            for (int y = yMin; y <= yMax; y++) {
-                for (int z = zMin; z <= zMax; z++) {
-                    Block b = world.getBlockAt(x, y, z);
-                    if (b.getType() == Manager.getGeneratorMaterial()) {
-                        generators.add(new Generator(b, this));
-                    }
-                }
-            }
-        }
-
-        // Check if the amount of generators is correct
-        if (generators.size() != ConfigFile.getGeneratorsRequired()) {
-            throw new InsufficientGeneratorAmount("Insufficient amount of Generators in the Arena");
-        }
+        initGenerators();
 
         // Set Game State
         state = GameState.RECRUITING;
@@ -97,7 +76,7 @@ public class Arena {
             Bukkit.getPlayer(uuid).teleport(lobbyLocation);
         }
 
-        //Destroy Holograms from Generators
+        //Reset Generators
         for (Generator g : generators) {
             g.cleanUp();
         }
@@ -135,6 +114,31 @@ public class Arena {
     public void sendMessage(String message) {
         for (UUID uuid : players) {
             Bukkit.getPlayer(uuid).sendMessage(message);
+        }
+    }
+
+    private void initGenerators() throws InsufficientGeneratorAmount {
+        generators = new ArrayList<>();
+        int xMin = Math.min(corner1.getBlockX(), corner2.getBlockX());
+        int xMax = Math.max(corner1.getBlockX(), corner2.getBlockX());
+        int yMin = Math.min(corner1.getBlockY(), corner2.getBlockY());
+        int yMax = Math.max(corner1.getBlockY(), corner2.getBlockY());
+        int zMin = Math.min(corner1.getBlockZ(), corner2.getBlockZ());
+        int zMax = Math.max(corner1.getBlockZ(), corner2.getBlockZ());
+        for (int x = xMin; x <= xMax; x++) {
+            for (int y = yMin; y <= yMax; y++) {
+                for (int z = zMin; z <= zMax; z++) {
+                    Block b = world.getBlockAt(x, y, z);
+                    if (b.getType() == Manager.getGeneratorMaterial()) {
+                        generators.add(new Generator(b, this));
+                    }
+                }
+            }
+        }
+
+        // Check if the amount of generators is correct
+        if (generators.size() != ConfigFile.getGeneratorsRequired()) {
+            throw new InsufficientGeneratorAmount("Insufficient amount of Generators in the Arena");
         }
     }
 
