@@ -56,17 +56,20 @@ public class Generator {
             public void run() {
                 if (progress == 100) {
                     finished = true;
+                    arena.getGame().generatorCompleted(getGenerator());
                     cancel();
                     return;
                 }
 
                 for (UUID u : arena.getPlayers()) {
                     Player p = Bukkit.getPlayer(u);
-                    Block target = p.getTargetBlockExact(radius);
-                    if (target != null && target.equals(block)) {
-                        progress += 5;
-                        updateHoloProgress();
-                        break;
+                    if (!arena.getGame().getKiller().equals(p)) {
+                        Block target = p.getTargetBlockExact(radius);
+                        if (target != null && target.equals(block)) {
+                            progress += 5;
+                            updateHoloProgress();
+                            break;
+                        }
                     }
                 }
 
@@ -77,7 +80,6 @@ public class Generator {
             }
         }.runTaskTimerAsynchronously(Escape.getPlugin(), 0L, 20L);
     }
-
 
     public void setupHolograms() {
         holograms.add(produceArmorstand("&aGenerator", block.getLocation().add(0.5, .9, 0.5)));
@@ -97,7 +99,9 @@ public class Generator {
 
     public void cleanUp() {
         deleteHolograms();
-        task.cancel();
+        if (task != null) {
+            task.cancel();
+        }
     }
 
     public void deleteHolograms() {
@@ -121,5 +125,8 @@ public class Generator {
         return finished;
     }
 
+    public Generator getGenerator() {
+        return this;
+    }
 
 }
