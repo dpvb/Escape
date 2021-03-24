@@ -1,6 +1,7 @@
 package com.bungoh.escape.game;
 
 import com.bungoh.escape.Escape;
+import com.bungoh.escape.files.ConfigFile;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -63,7 +64,8 @@ public class Game {
 
     public void generatorCompleted(Generator generator) {
         completedGenerators.add(generator);
-        if (completedGenerators.size() == arena.getGenerators().size()) {
+        arena.sendMessage(ChatColor.GREEN + "A generator has been completed! (" + completedGenerators.size() + "/" + ConfigFile.getGeneratorWinRequirement() + ")");
+        if (completedGenerators.size() == ConfigFile.getGeneratorWinRequirement()) {
             openEscapeDoor();
         }
     }
@@ -88,7 +90,7 @@ public class Game {
         killer.getInventory().setItem(0, killerSword);
 
         killer.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 0));
-        killer.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0));
+        killer.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1));
 
         killerRevealCooldown = false;
         killerRevealCooldownLen = 10 * 20;
@@ -130,6 +132,7 @@ public class Game {
 
     private void openEscapeDoor() {
         escapable = true;
+        arena.sendMessage(ChatColor.GREEN + "The exit has been opened! Find a black door with white particles!");
         doorParticleOptions = new Particle.DustOptions(Color.WHITE, 1);
     }
 
@@ -148,7 +151,7 @@ public class Game {
             killer.sendMessage(ChatColor.RED + "Runners have been revealed!");
 
             for (Player r : getRunners()) {
-                r.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 60, 1));
+                r.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 100, 1));
             }
 
             killerRevealCooldown = true;

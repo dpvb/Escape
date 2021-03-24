@@ -60,6 +60,12 @@ public class GameListener implements Listener {
             }
 
             Arena arena = Manager.getArena(victim);
+
+            if (arena.getState() != GameState.LIVE) {
+                e.setCancelled(true);
+                return;
+            }
+
             //Cancel the event if the damager is not the killer
             if (!arena.getGame().getKiller().equals(damager)) {
                 e.setCancelled(true);

@@ -81,8 +81,10 @@ public class Arena {
         }
 
         //Reset Generators
-        for (Generator g : generators) {
-            g.cleanUp();
+        if (generators != null) {
+            for (Generator g : generators) {
+                g.cleanUp();
+            }
         }
 
         //Reset Arena State

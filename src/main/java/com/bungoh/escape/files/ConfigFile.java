@@ -26,6 +26,8 @@ public class ConfigFile {
 
     public static int getGeneratorsRequired() { return plugin.getConfig().getInt("generator-amount"); }
 
+    public static int getGeneratorWinRequirement() { return plugin.getConfig().getInt("generator-win-requirement"); }
+
     public static String getMessage(String path) {
         String msg = plugin.getConfig().getString(path);
         if (msg != null) {
