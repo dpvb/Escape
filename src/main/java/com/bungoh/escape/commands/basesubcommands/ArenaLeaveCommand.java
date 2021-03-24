@@ -3,6 +3,7 @@ package com.bungoh.escape.commands.basesubcommands;
 import com.bungoh.escape.commands.SubCommand;
 import com.bungoh.escape.game.Arena;
 import com.bungoh.escape.game.Manager;
+import com.bungoh.escape.game.RemovalTypes;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -29,7 +30,7 @@ public class ArenaLeaveCommand extends SubCommand {
         if (args.length == 1) {
             if (Manager.isPlaying(player)) {
                 Arena arena = Manager.getArena(player);
-                arena.removePlayer(player);
+                arena.removePlayer(player, RemovalTypes.COMMAND);
                 arena.sendMessage(player.getName() + ChatColor.GREEN + " has left the game!");
                 player.sendMessage(ChatColor.GREEN + "You left the game!");
             }

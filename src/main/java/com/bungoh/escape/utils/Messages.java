@@ -21,6 +21,7 @@ public enum Messages {
     ARENA_GENERATOR_REMOVED("messages.arena_generator_removed"),
     ARENA_NO_GENERATORS_LEFT("messages.arena_no_generators_left"),
     ARENA_INSUFFICIENT_GENS("messages.arena_insufficient_gens"),
+    ARENA_ALREADY_INGAME("messages.arena_already_ingame"),
     UNEXPECTED_ERROR("messages.unexpected_error");
 
     private String path;

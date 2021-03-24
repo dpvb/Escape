@@ -33,7 +33,11 @@ public class ArenaJoinCommand extends SubCommand {
             Arena arena = Manager.getArena(arenaName);
             if (arena != null) {
                 if (Manager.isRecruiting(arenaName)) {
-                    arena.addPlayer(player);
+                    if (!Manager.isPlaying(player)) {
+                        arena.addPlayer(player);
+                    } else {
+                        player.sendMessage(ConfigFile.getMessage(Messages.ARENA_ALREADY_INGAME.getPath()));
+                    }
                 } else {
                     player.sendMessage(ConfigFile.getMessage(Messages.ARENA_NOT_RECRUITING.getPath()));
                 }

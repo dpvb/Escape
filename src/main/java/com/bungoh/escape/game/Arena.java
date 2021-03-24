@@ -72,7 +72,12 @@ public class Arena {
     public void reset() {
         //Teleport Players
         for (UUID uuid : players) {
-            Bukkit.getPlayer(uuid).teleport(lobbyLocation);
+            Player p = Bukkit.getPlayer(uuid);
+            p.teleport(lobbyLocation);
+            p.setHealth(20);
+            p.setFoodLevel(20);
+            p.getInventory().clear();
+            p.getActivePotionEffects().forEach(potionEffect -> p.removePotionEffect(potionEffect.getType()));
         }
 
         //Reset Generators
@@ -95,31 +100,82 @@ public class Arena {
         player.teleport(lobbyLocation);
         sendMessage(player.getName() + ChatColor.GREEN + " has joined.");
 
+        player.setHealth(20);
+        player.setFoodLevel(20);
+        player.getInventory().clear();
+
         if (players.size() >= ConfigFile.getRequiredPlayers()) {
             countdown.begin();
         }
     }
 
-    public void removePlayer(Player player) {
+    public void removePlayer(Player player, RemovalTypes remove) {
         players.remove(player.getUniqueId());
         player.teleport(lobbyLocation);
 
-        if (state == GameState.LIVE) {
-            if (players.size() == 0 || game.getKiller().equals(player)) {
-                reset();
-            }
+        player.getActivePotionEffects().forEach(potionEffect -> player.removePotionEffect(potionEffect.getType()));
 
-            if (game.isRunner(player)) {
-                if (game.getRunners().size() == 1) {
-                    reset();
-                } else {
-                    game.getRunners().remove(player);
+        player.getInventory().clear();
+        player.setFoodLevel(20);
+
+        switch (remove) {
+            case COMMAND:
+            case DISCONNECTED:
+                player.setHealth(20);
+                if (state == GameState.LIVE) {
+                    if (players.size() == 0 || game.getKiller().equals(player)) {
+                        sendMessage(ChatColor.GREEN + "The killer has disconnected. The game ended.");
+                        reset();
+                        return;
+                    }
+
+                    if (game.isRunner(player)) {
+                        if (game.getRunners().size() == 1) {
+                            //Killer Win
+                            Bukkit.getServer().broadcastMessage(game.getKiller().getName() + ChatColor.GREEN + " won as the Killer in arena: " + ChatColor.WHITE + name);
+                            reset();
+                        } else {
+                            game.getRunners().remove(player);
+                        }
+                    }
                 }
-            }
-        }
 
-        if (players.size() < ConfigFile.getRequiredPlayers() && state == GameState.COUNTDOWN) {
-            reset();
+                if (players.size() < ConfigFile.getRequiredPlayers() && state == GameState.COUNTDOWN) {
+                    reset();
+                }
+                break;
+            case KILLED:
+                if (state == GameState.LIVE) {
+                    if (game.isRunner(player)) {
+                        if (game.getRunners().size() == 1) {
+                            //Killer Win
+                            Bukkit.getServer().broadcastMessage(game.getKiller().getName() + ChatColor.GREEN + " won as the Killer in arena: " + ChatColor.WHITE + name);
+                            reset();
+                        } else {
+                            player.sendMessage(ChatColor.RED + "You were not able to escape!");
+                            game.getRunners().remove(player);
+                        }
+                    }
+                }
+                break;
+            case ESCAPED:
+                player.setHealth(20);
+                if (state == GameState.LIVE) {
+                    if (players.size() == 0 || game.getKiller().equals(player)) {
+                        reset();
+                    }
+
+                    if (game.isRunner(player)) {
+                        if (game.getRunners().size() == 1) {
+                            Bukkit.getServer().broadcastMessage(ChatColor.GREEN + "Everyone escaped in arena: " + ChatColor.WHITE + name);
+                            reset();
+                        } else {
+                            player.sendMessage(ChatColor.GREEN + "You successfully escaped!");
+                            game.getRunners().remove(player);
+                        }
+                    }
+                }
+                break;
         }
     }
 

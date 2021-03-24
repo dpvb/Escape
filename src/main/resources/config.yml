@@ -24,4 +24,5 @@ messages:
   arena_generator_removed: "&aYou successfully removed a generator from the arena!"
   arena_no_generators_left: "&aThere are no generators remaining in this arena!"
   arena_insufficient_gens: "&cYou do not have the correct amount of generators setup in the arena!"
+  arena_already_ingame: "&cYou are already in a game!"
   unexpected_error: "&cAn unexpected error has occurred!"
