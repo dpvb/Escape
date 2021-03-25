@@ -2,7 +2,8 @@
 required-players: 4
 countdown-timer: 30
 generator-block: "REDSTONE_BLOCK"
-generator-amount: 5
+generator-amount: 7
+generator-win-requirement: 5
 
 messages:
   arena_does_not_exist: "&cThat arena does not exist!"

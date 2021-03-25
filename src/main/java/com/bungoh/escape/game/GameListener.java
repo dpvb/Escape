@@ -1,5 +1,6 @@
 package com.bungoh.escape.game;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -75,9 +76,9 @@ public class GameListener implements Listener {
             e.setDamage(10);
 
             //Give Runner Movement Speed and Killer Slowness
-            damager.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 40, 2));
+            damager.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 50, 4));
             if (victim.getHealth() > 10) {
-                victim.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 40, 2));
+                victim.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 3));
             }
         }
     }
@@ -146,25 +147,41 @@ public class GameListener implements Listener {
         Player player = (Player) e.getWhoClicked();
 
         if (Manager.isPlaying(player)) {
-            if (Manager.getArena(player).getState() == GameState.LIVE && Manager.getArena(player).getGame().getKiller().equals(player)) {
+            if (Manager.getArena(player).getState() == GameState.LIVE) {
                 e.setCancelled(true);
             }
         }
     }
 
-    //Listen for Killer Reveal
+    //Listen for Killer Reveal // Runner Invis
     @EventHandler
-    public void killerRightClickSword(PlayerInteractEvent e) {
+    public void playerInteractEvent(PlayerInteractEvent e) {
         Player player = e.getPlayer();
 
         if (Manager.isPlaying(player)) {
-            if (Manager.getArena(player).getState() == GameState.LIVE && Manager.getArena(player).getGame().getKiller().equals(player)) {
-                if (e.getHand() == EquipmentSlot.HAND && (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)) {
-                    Manager.getArena(player).getGame().revealRunners();
+            Arena arena = Manager.getArena(player);
+            if (arena.getState() == GameState.LIVE) {
+                Game game = arena.getGame();
+
+                if (e.getItem() == null) {
+                    return;
+                }
+
+                if (game.getKiller().equals(player)) {
+
+                    if (e.getItem().getType().equals(Material.DIAMOND_SWORD) && e.getHand() == EquipmentSlot.HAND && (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)) {
+                        game.revealRunners();
+                    }
+                } else {
+                    if (e.getItem().getType().equals(Material.INK_SAC) && e.getHand() == EquipmentSlot.HAND && (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)) {
+                        game.runnerInvis(player);
+                    }
                 }
             }
         }
     }
+
+
 
     //Runner Killed Event
     @EventHandler
@@ -174,8 +191,17 @@ public class GameListener implements Listener {
         if (Manager.isPlaying(p) && Manager.getArena(p).getState() == GameState.LIVE) {
             if (Manager.getArena(p).getGame().getRunners().contains(p)) {
                 Manager.getArena(p).getGame().runnerKilled(p);
+                e.getDrops().clear();
                 e.setDeathMessage("");
             }
+        }
+    }
+
+    //No Item Drop in Game
+    @EventHandler
+    public void noItemDrop(PlayerDropItemEvent e) {
+        if (Manager.isPlaying(e.getPlayer())) {
+            e.setCancelled(true);
         }
     }
 }

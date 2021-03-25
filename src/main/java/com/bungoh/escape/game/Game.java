@@ -12,12 +12,11 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Game {
 
@@ -27,9 +26,14 @@ public class Game {
     private Set<Generator> completedGenerators;
     private Particle.DustOptions doorParticleOptions;
     private BukkitTask particleTask;
+    private BukkitTask killerHeartbeat;
     private boolean escapable;
     private boolean killerRevealCooldown;
+    private HashMap<Player, Boolean> runnerInvisCooldown;
+    private int runnerInvisCooldownLen;
     private int killerRevealCooldownLen;
+    private Team team;
+    private Sound heartbeatSound = Sound.BLOCK_NOTE_BLOCK_BASEDRUM;
 
     public Game(Arena arena) {
         this.arena = arena;
@@ -38,6 +42,9 @@ public class Game {
     public void start() {
         //Set Game State
         arena.setState(GameState.LIVE);
+
+        //Setup no nametags
+        prepareScoreboard();
 
         //Initialize all Players into Respective Roles
         setupKillerAndRunners();
@@ -57,8 +64,16 @@ public class Game {
     }
 
     public void cleanup() {
+        if (team != null) {
+            team.getEntries().forEach(s -> team.removeEntry(s));
+            team.unregister();
+        }
         if (particleTask != null) {
             particleTask.cancel();
+        }
+
+        if (killerHeartbeat != null) {
+            killerHeartbeat.cancel();
         }
     }
 
@@ -78,6 +93,7 @@ public class Game {
         //Setup Killer
         killer = Bukkit.getPlayer(arena.getPlayers().get(rand));
 
+        //Create Killer Sword
         ItemStack killerSword = new ItemStack(Material.DIAMOND_SWORD);
         ItemMeta swordMeta = killerSword.getItemMeta();
         swordMeta.setUnbreakable(true);
@@ -88,24 +104,68 @@ public class Game {
         killerSword.setItemMeta(swordMeta);
         killerSword.addEnchantment(Enchantment.KNOCKBACK, 2);
         killer.getInventory().setItem(0, killerSword);
+        killer.getInventory().setHeldItemSlot(0);
 
-        killer.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 0));
-        killer.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1));
-
+        //Set Killer Reveal Cooldowns
         killerRevealCooldown = false;
-        killerRevealCooldownLen = 10 * 20;
+        killerRevealCooldownLen = 20 * 20;
+
+        //Remove the Killer's Nametag
+        team.addEntry(killer.getName());
+
+        //Teleport the killer
+        killer.teleport(arena.getKillerSpawn());
 
         //Setup Runners
         runners = new HashSet<>();
+        runnerInvisCooldown = new HashMap<>();
         for (int i = 0; i < numPlayers; i++) {
             if (i != rand) {
+                //Add runner and teleport the runner to arena
                 Player p = Bukkit.getPlayer(arena.getPlayers().get(i));
                 runners.add(p);
                 p.teleport(arena.getRunnerSpawn());
+
+                //Create invis ability
+                ItemStack inkSac = new ItemStack(Material.INK_SAC);
+                ItemMeta sacMeta = inkSac.getItemMeta();
+                sacMeta.setDisplayName(ChatColor.GRAY + "INVIS");
+                List<String> sacLore = new ArrayList<>();
+                lore.add(ChatColor.RED + "Right Click to get " + ChatColor.DARK_RED + "invisibility");
+                sacMeta.setLore(sacLore);
+                inkSac.setItemMeta(sacMeta);
+                p.getInventory().setItem(0, inkSac);
+
+                //Create invis cooldown
+                runnerInvisCooldown.put(p, false);
+
+                //Remove runner nametag
+                team.addEntry(p.getName());
             }
         }
 
-        killer.teleport(arena.getKillerSpawn());
+        //Set cooldown length for the invis abiliity
+        runnerInvisCooldownLen = 30 * 20;
+
+        //Setup Killer Heartbeat
+        killerHeartbeat = new BukkitRunnable() {
+            @Override
+            public void run() {
+                runners.forEach(p -> {
+                    long d = (long) killer.getLocation().distance(p.getLocation());
+                    if (d <= 20) {
+                        long ticks = 8 - (6 * (20 - d) / 20);
+                        p.playSound(p.getLocation(), heartbeatSound, SoundCategory.PLAYERS, 1, 1);
+                        new BukkitRunnable() {
+                            @Override
+                            public void run() {
+                                p.playSound(p.getLocation(), heartbeatSound, SoundCategory.PLAYERS, 1, 1);
+                            }
+                        }.runTaskLaterAsynchronously(Escape.getPlugin(), ticks);
+                    }
+                });
+            }
+        }.runTaskTimer(Escape.getPlugin(), 0L, 20L);
     }
 
     private void createEscapeDoor() {
@@ -149,9 +209,11 @@ public class Game {
     public void revealRunners() {
         if (!killerRevealCooldown) {
             killer.sendMessage(ChatColor.RED + "Runners have been revealed!");
+            killer.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 100, 0));
+            killer.removePotionEffect(PotionEffectType.BLINDNESS);
 
             for (Player r : getRunners()) {
-                r.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 100, 1));
+                r.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 40, 1));
             }
 
             killerRevealCooldown = true;
@@ -163,6 +225,35 @@ public class Game {
             }.runTaskLater(Escape.getPlugin(), killerRevealCooldownLen);
         } else {
             killer.sendMessage(ChatColor.RED + "Reveal is on cooldown!");
+        }
+    }
+
+    private void prepareScoreboard() {
+        Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+        team = scoreboard.registerNewTeam(arena.getName());
+        team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
+        team.setCanSeeFriendlyInvisibles(false);
+    }
+
+    public void runnerInvis(Player player) {
+        if (!runnerInvisCooldown.get(player)) {
+            player.sendMessage(ChatColor.RED + "You went invis for 3 seconds!");
+            player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 60, 0));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 3));
+            player.getInventory().setHeldItemSlot(1);
+
+            runnerInvisCooldown.replace(player, true);
+            new BukkitRunnable(){
+                @Override
+                public void run() {
+                    if (runners.contains(player)) {
+                        runnerInvisCooldown.replace(player, false);
+                        player.sendMessage(ChatColor.GREEN + "Your invis ability is back up!");
+                    }
+                }
+            }.runTaskLater(Escape.getPlugin(), runnerInvisCooldownLen);
+        } else {
+            player.sendMessage(ChatColor.RED + "Invis is on cooldown!");
         }
     }
 
@@ -180,5 +271,9 @@ public class Game {
 
     public Set<Player> getRunners() {
         return runners;
+    }
+
+    public Team getTeam() {
+        return team;
     }
 }

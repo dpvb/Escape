@@ -6,12 +6,17 @@ import com.bungoh.escape.files.ConfigFile;
 import com.bungoh.escape.files.DataFile;
 import com.bungoh.escape.game.GameListener;
 import com.bungoh.escape.game.Manager;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public final class Escape extends JavaPlugin {
 
     private static Escape plugin;
+    private static final ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("Bungoh - Escape Sounds").build());
 
     @Override
     public void onEnable() {
@@ -41,5 +46,9 @@ public final class Escape extends JavaPlugin {
 
     public static Escape getPlugin() {
         return plugin;
+    }
+
+    public static ExecutorService getExecutor() {
+        return executor;
     }
 }

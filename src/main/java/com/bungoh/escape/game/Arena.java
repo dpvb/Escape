@@ -91,7 +91,9 @@ public class Arena {
         state = GameState.RECRUITING;
         players.clear();
         countdown = new Countdown(this);
-        game.cleanup();
+        if (game != null) {
+            game.cleanup();
+        }
         game = new Game(this);
 
         System.out.println("Arena " + name + " successfully reset.");
@@ -105,6 +107,7 @@ public class Arena {
         player.setHealth(20);
         player.setFoodLevel(20);
         player.getInventory().clear();
+        player.setGameMode(GameMode.ADVENTURE);
 
         if (players.size() >= ConfigFile.getRequiredPlayers()) {
             countdown.begin();
@@ -119,6 +122,12 @@ public class Arena {
 
         player.getInventory().clear();
         player.setFoodLevel(20);
+
+        if (state == GameState.LIVE) {
+            if (game.getTeam() != null) {
+                game.getTeam().removeEntry(player.getName());
+            }
+        }
 
         switch (remove) {
             case COMMAND:
