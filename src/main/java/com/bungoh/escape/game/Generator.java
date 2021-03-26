@@ -55,7 +55,7 @@ public class Generator {
         task = new BukkitRunnable() {
             @Override
             public void run() {
-                if (progress == 100) {
+                if (progress >= 100) {
                     finished = true;
                     arena.getGame().generatorCompleted(getGenerator());
                     cancel();
@@ -63,16 +63,19 @@ public class Generator {
                 }
 
                 try {
+                    int update = 0;
                     for (UUID u : arena.getPlayers()) {
                         Player p = Bukkit.getPlayer(u);
                         if (!arena.getGame().getKiller().equals(p)) {
                             Block target = p.getTargetBlockExact(radius);
                             if (target != null && target.equals(block)) {
-                                progress += 4;
-                                updateHoloProgress();
-                                break;
+                                update += 2;
                             }
                         }
+                    }
+                    progress = Math.min(progress + update, 100);
+                    if (update != 0) {
+                        updateHoloProgress();
                     }
                 } catch (ConcurrentModificationException e) {
                     System.out.println("Concurrent Modification because players force quit. Generators still trying to update.");

@@ -77,6 +77,7 @@ public class Arena {
             p.setHealth(20);
             p.setFoodLevel(20);
             p.getInventory().clear();
+            p.setLevel(0);
             p.getActivePotionEffects().forEach(potionEffect -> p.removePotionEffect(potionEffect.getType()));
         }
 
@@ -122,10 +123,12 @@ public class Arena {
 
         player.getInventory().clear();
         player.setFoodLevel(20);
+        player.setLevel(0);
 
         if (state == GameState.LIVE) {
             if (game.getTeam() != null) {
                 game.getTeam().removeEntry(player.getName());
+                game.cancelInvisTask(player);
             }
         }
 
