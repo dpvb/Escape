@@ -240,7 +240,6 @@ public class Game {
         if (!killerRevealCooldown) {
             killer.sendMessage(ChatColor.RED + "Runners have been revealed!");
             killer.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 100, 1));
-            killer.removePotionEffect(PotionEffectType.BLINDNESS);
 
             for (Player r : getRunners()) {
                 r.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 40, 1));

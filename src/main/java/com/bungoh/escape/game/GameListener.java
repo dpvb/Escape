@@ -1,19 +1,19 @@
 package com.bungoh.escape.game;
 
+import com.bungoh.escape.Escape;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityRegainHealthEvent;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 public class GameListener implements Listener {
 
@@ -40,6 +40,23 @@ public class GameListener implements Listener {
                     }
                 }
             }
+        }
+    }
+
+    //Disable Extraneous Damage
+    @EventHandler
+    public void playerOtherDamage(EntityDamageEvent e) {
+        if (!(e.getEntity() instanceof Player)) {
+            return;
+        }
+
+        if (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
+            return;
+        }
+
+        Player player = (Player) e.getEntity();
+        if (Manager.isPlaying(player)) {
+            e.setCancelled(true);
         }
     }
 
@@ -70,15 +87,31 @@ public class GameListener implements Listener {
             //Cancel the event if the damager is not the killer
             if (!arena.getGame().getKiller().equals(damager)) {
                 e.setCancelled(true);
+                return;
             }
 
-            //Deal appropriate Killer Damage
-            e.setDamage(10);
+            //Check if hit is in cooldown
+            if (!arena.getGame().getHitCooldown()) {
+                //Deal Damage
+                e.setDamage(10);
 
-            //Give Runner Movement Speed and Killer Slowness
-            damager.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 50, 4));
-            if (victim.getHealth() > 10) {
-                victim.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 3));
+                //Give Runner Movement Speed and Killer Slowness
+                damager.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 50, 4));
+                if (victim.getHealth() > 10) {
+                    victim.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 3));
+                }
+
+                arena.getGame().setHitCooldown(true);
+
+                //Setup Task
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        arena.getGame().setHitCooldown(false);
+                    }
+                }.runTaskLaterAsynchronously(Escape.getPlugin(), arena.getGame().getHitCooldownLen());
+            } else {
+                e.setCancelled(true);
             }
         }
     }
@@ -180,8 +213,6 @@ public class GameListener implements Listener {
             }
         }
     }
-
-
 
     //Runner Killed Event
     @EventHandler
