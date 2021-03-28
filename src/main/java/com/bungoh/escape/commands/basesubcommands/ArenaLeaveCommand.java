@@ -30,7 +30,7 @@ public class ArenaLeaveCommand extends SubCommand {
         if (args.length == 1) {
             if (Manager.isPlaying(player)) {
                 Arena arena = Manager.getArena(player);
-                arena.removePlayer(player, RemovalTypes.COMMAND);
+                arena.removePlayer(player);
                 arena.sendMessage(player.getName() + ChatColor.GREEN + " has left the game!");
                 player.sendMessage(ChatColor.GREEN + "You left the game!");
             }

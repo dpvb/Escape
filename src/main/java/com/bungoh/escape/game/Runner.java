@@ -53,6 +53,8 @@ public class Runner extends GameParticipant {
     }
 
     public void cleanup() {
+        player.getInventory().clear();
+
         if (killerHeartbeat != null) {
             killerHeartbeat.cancel();
         }

@@ -22,7 +22,7 @@ public class GameListener implements Listener {
         Player player = e.getPlayer();
 
         if (Manager.isPlaying(player)) {
-            Manager.getArena(player).removePlayer(player, RemovalTypes.DISCONNECTED);
+            Manager.getArena(player).removePlayer(player);
         }
     }
 

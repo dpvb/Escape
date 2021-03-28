@@ -66,7 +66,7 @@ public class Generator {
                     int update = 0;
                     for (UUID u : arena.getPlayers()) {
                         Player p = Bukkit.getPlayer(u);
-                        if (!arena.getGame().getKiller().equals(p)) {
+                        if (arena.getGame().isRunner(p)) {
                             Block target = p.getTargetBlockExact(radius);
                             if (target != null && target.equals(block)) {
                                 update += 2;
@@ -80,7 +80,6 @@ public class Generator {
                 } catch (ConcurrentModificationException e) {
                     System.out.println("Concurrent Modification because players force quit. Generators still trying to update.");
                 }
-
 
                 circleDust = new Particle.DustOptions(Color.fromRGB(255 * progress / 100, 255 * progress / 100, 255 * progress / 100), 1);
                 for (Vector v : circlePoints) {

@@ -68,25 +68,13 @@ public class Arena {
         System.out.println("Arena " + name + " successfully setup.");
     }
 
+    //Completely reset the Arena
     public void reset() {
-        //Teleport Players
+        //Reset Players and Clean them Up
         for (int i = 0; i < players.size(); i++) {
             Player player = Bukkit.getPlayer(players.get(i));
+            resetPlayer(player);
             player.teleport(lobbyLocation);
-            player.getActivePotionEffects().forEach(potionEffect -> player.removePotionEffect(potionEffect.getType()));
-            player.getInventory().clear();
-            player.setFoodLevel(20);
-            player.setLevel(0);
-
-            if (state == GameState.LIVE) {
-                if (game.isRunner(player)) {
-                    game.getRunner(player).cleanup();
-                } else if (game.getKiller().player.equals(player)) {
-                    game.getKiller().cleanup();
-                } else {
-                    game.removeSpectator(player);
-                }
-            }
         }
 
         //Reset Generators
@@ -123,83 +111,31 @@ public class Arena {
         }
     }
 
-    public void removePlayer(Player player, RemovalTypes remove) {
-        player.teleport(lobbyLocation);
-        player.getActivePotionEffects().forEach(potionEffect -> player.removePotionEffect(potionEffect.getType()));
-        player.getInventory().clear();
-        player.setFoodLevel(20);
-        player.setLevel(0);
+    //This method should be used to completely remove the player from the Arena.
+    public void removePlayer(Player player) {
+        resetPlayer(player);
+        player.teleport(getLobbyLocation());
         players.remove(player.getUniqueId());
 
         if (state == GameState.LIVE) {
-            if (game.getTeam() != null) {
-                game.getTeam().removeEntry(player.getName());
-            }
-
-            if (game.isRunner(player)) {
-                game.getRunner(player).cleanup();
-            } else {
-                game.getKiller().cleanup();
-            }
+            game.removePlayer(player);
+            game.checkGameConditions();
         }
 
-        switch (remove) {
-            case COMMAND:
-            case DISCONNECTED:
-                player.setHealth(20);
-                if (state == GameState.LIVE) {
-                    if (players.size() == 0 || game.getKiller().player.equals(player)) {
-                        sendMessage(ChatColor.GREEN + "The killer has disconnected. The game ended.");
-                        reset();
-                        return;
-                    }
+        if (state == GameState.COUNTDOWN && players.size() < ConfigFile.getRequiredPlayers()) {
+            reset();
+        }
+    }
 
-                    if (game.isRunner(player)) {
-                        if (game.getRunners().size() == 1) {
-                            //Killer Win
-                            Bukkit.getServer().broadcastMessage(game.getKiller().getName() + ChatColor.GREEN + " won as the Killer in arena: " + ChatColor.WHITE + name);
-                            reset();
-                        } else {
-                            game.removeRunner(player);
-                        }
-                    }
-                }
+    public void resetPlayer(Player player) {
+        player.getActivePotionEffects().forEach(potionEffect -> player.removePotionEffect(potionEffect.getType()));
+        player.getInventory().clear();
+        player.setHealth(20);
+        player.setFoodLevel(20);
+        player.setLevel(0);
 
-                if (players.size() < ConfigFile.getRequiredPlayers() && state == GameState.COUNTDOWN) {
-                    reset();
-                }
-                break;
-            case KILLED:
-                if (state == GameState.LIVE) {
-                    if (game.isRunner(player)) {
-                        if (game.getRunners().size() == 1) {
-                            //Killer Win
-                            Bukkit.getServer().broadcastMessage(game.getKiller().getName() + ChatColor.GREEN + " won as the Killer in arena: " + ChatColor.WHITE + name);
-                            reset();
-                        } else {
-                            player.sendMessage(ChatColor.RED + "You were not able to escape!");
-                            game.removeRunner(player);
-                        }
-                    }
-                }
-                break;
-            case ESCAPED:
-                if (state == GameState.LIVE) {
-                    if (players.size() == 0 || game.getKiller().player.equals(player)) {
-                        reset();
-                    }
-
-                    if (game.isRunner(player)) {
-                        if (game.getRunners().size() == 1) {
-                            Bukkit.getServer().broadcastMessage(ChatColor.GREEN + "Everyone escaped in arena: " + ChatColor.WHITE + name);
-                            reset();
-                        } else {
-                            player.sendMessage(ChatColor.GREEN + "You successfully escaped!");
-                            game.removeRunner(player);
-                        }
-                    }
-                }
-                break;
+        if (state == GameState.LIVE && game.getTeam() != null) {
+            game.getTeam().removeEntry(player.getName());
         }
     }
 
