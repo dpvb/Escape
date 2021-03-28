@@ -81,8 +81,10 @@ public class Arena {
             if (state == GameState.LIVE) {
                 if (game.isRunner(player)) {
                     game.getRunner(player).cleanup();
-                } else {
+                } else if (game.getKiller().player.equals(player)) {
                     game.getKiller().cleanup();
+                } else {
+                    game.removeSpectator(player);
                 }
             }
         }
@@ -122,23 +124,23 @@ public class Arena {
     }
 
     public void removePlayer(Player player, RemovalTypes remove) {
-        players.remove(player.getUniqueId());
         player.teleport(lobbyLocation);
         player.getActivePotionEffects().forEach(potionEffect -> player.removePotionEffect(potionEffect.getType()));
         player.getInventory().clear();
         player.setFoodLevel(20);
         player.setLevel(0);
+        players.remove(player.getUniqueId());
 
         if (state == GameState.LIVE) {
             if (game.getTeam() != null) {
                 game.getTeam().removeEntry(player.getName());
             }
-        }
 
-        if (game.isRunner(player)) {
-            game.getRunner(player).cleanup();
-        } else {
-            game.getKiller().cleanup();
+            if (game.isRunner(player)) {
+                game.getRunner(player).cleanup();
+            } else {
+                game.getKiller().cleanup();
+            }
         }
 
         switch (remove) {
@@ -177,7 +179,6 @@ public class Arena {
                         } else {
                             player.sendMessage(ChatColor.RED + "You were not able to escape!");
                             game.removeRunner(player);
-                            //force into spectator
                         }
                     }
                 }
@@ -195,7 +196,6 @@ public class Arena {
                         } else {
                             player.sendMessage(ChatColor.GREEN + "You successfully escaped!");
                             game.removeRunner(player);
-                            //force into spectator
                         }
                     }
                 }

@@ -64,7 +64,7 @@ public class RunnerInvis extends RunnerAbility {
                         timer--;
                     }
 
-                    p.setLevel(timer + 1);
+                    p.setLevel(timer);
                 }
             }.runTaskTimerAsynchronously(Escape.getPlugin(), 0L, 20L);
 

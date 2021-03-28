@@ -137,13 +137,11 @@ public class Game {
 
     public void runnerEscaped(Player player) {
         arena.sendMessage(player.getName() + ChatColor.GREEN + " has escaped!");
-        //spectate(player);
         arena.removePlayer(player, RemovalTypes.ESCAPED);
     }
 
     public void runnerKilled(Player player) {
         arena.sendMessage(player.getName() + ChatColor.RED + " has been killed!");
-        //spectate(player);
         arena.removePlayer(player, RemovalTypes.KILLED);
     }
 
@@ -154,31 +152,25 @@ public class Game {
         team.setCanSeeFriendlyInvisibles(false);
     }
 
-    /*
-    public void spectate(Player player) {
-        //Add to Spectator Set
-        spectators.add(player);
-        //Let Player Fly
-        player.setFlying(true);
-        //Hide Player from Everyone Else in the Arena
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            p.hidePlayer(Escape.getPlugin(), player);
-        }
-        //Teleport Player to the Killer
+    public void addSpectator(Player player) {
+        spectators.add(new Spectator(this, player));
         player.teleport(killer.getLocation());
     }
 
-    public void resetSpectator(Player player) {
-        if (spectators.contains(player)) {
-            player.setFlying(false);
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                p.showPlayer(Escape.getPlugin(), player);
+    public void removeSpectator(Player player) {
+        if (spectators != null) {
+            Spectator del = null;
+            for (Spectator s : spectators) {
+                if (s.player.equals(player)) {
+                    s.cleanup();
+                    del = s;
+                }
             }
-            spectators.remove(player);
+            if (del != null) {
+                spectators.remove(del);
+            }
         }
     }
-
-     */
 
     public Killer getKiller() {
         return killer;

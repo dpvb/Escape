@@ -9,8 +9,6 @@ import com.bungoh.escape.game.Manager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.concurrent.ExecutorService;
-
 public final class Escape extends JavaPlugin {
 
     private static Escape plugin;

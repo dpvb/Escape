@@ -2,7 +2,6 @@ package com.bungoh.escape.game;
 
 import com.bungoh.escape.Escape;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

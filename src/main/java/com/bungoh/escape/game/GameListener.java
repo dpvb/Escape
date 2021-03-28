@@ -4,6 +4,7 @@ import com.bungoh.escape.Escape;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.*;
@@ -58,6 +59,28 @@ public class GameListener implements Listener {
             e.setCancelled(true);
         }
     }
+
+    //Disable PVP
+    @EventHandler
+    public void playerHitPlayer(EntityDamageByEntityEvent e) {
+        if (e.getEntity() instanceof Player && e.getDamager() instanceof Player) {
+            Player v = (Player) e.getEntity();
+            Player d = (Player) e.getDamager();
+
+            if (!Manager.isPlaying(v) || !Manager.isPlaying(d)) {
+                return;
+            }
+
+            if (!Manager.getArena(v).equals(Manager.getArena(d))) {
+                return;
+            }
+
+            if (Manager.getArena(v).getState() != GameState.LIVE) {
+                e.setCancelled(true);
+            }
+        }
+    }
+
 
     //No Hunger Depletion while in an Arena
     @EventHandler
@@ -139,9 +162,33 @@ public class GameListener implements Listener {
                 Manager.getArena(p).getGame().runnerKilled(p);
                 e.getDrops().clear();
                 e.setDeathMessage("");
+                /*
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        p.spigot().respawn();
+                    }
+                }.runTaskLater(Escape.getPlugin(), 1L);
+                 */
+
             }
         }
     }
+
+    /*
+    @EventHandler
+    public void runnerRespawn(PlayerRespawnEvent e) {
+        Player p = e.getPlayer();
+
+        if (Manager.isPlaying(p)) {
+            if (Manager.getArena(p).getState() == GameState.LIVE) {
+                e.setRespawnLocation(Manager.getArena(p).getGame().getKiller().getLocation());
+            } else {
+                e.setRespawnLocation(Manager.getArena(p).getLobbyLocation());
+            }
+        }
+    }
+     */
 
     //No Item Drop in Game
     @EventHandler

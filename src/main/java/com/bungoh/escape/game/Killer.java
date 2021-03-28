@@ -104,7 +104,7 @@ public class Killer extends GameParticipant {
                             timer--;
                         }
 
-                        player.setLevel(timer + 1);
+                        player.setLevel(timer);
                     }
                 }.runTaskTimerAsynchronously(Escape.getPlugin(), 0L, 20L);
 
@@ -122,6 +122,7 @@ public class Killer extends GameParticipant {
     }
 
     class KillerListener implements Listener {
+
         @EventHandler
         public void onInteract(PlayerInteractEvent e) {
             if (!e.getPlayer().equals(player)) {
