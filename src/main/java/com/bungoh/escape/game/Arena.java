@@ -13,7 +13,6 @@ public class Arena {
 
     private String name;
     private ArrayList<UUID> players;
-
     private Location lobbyLocation;
     private Location runnerSpawn;
     private Location killerSpawn;
@@ -71,14 +70,21 @@ public class Arena {
 
     public void reset() {
         //Teleport Players
-        for (UUID uuid : players) {
-            Player p = Bukkit.getPlayer(uuid);
-            p.teleport(lobbyLocation);
-            p.setHealth(20);
-            p.setFoodLevel(20);
-            p.getInventory().clear();
-            p.setLevel(0);
-            p.getActivePotionEffects().forEach(potionEffect -> p.removePotionEffect(potionEffect.getType()));
+        for (int i = 0; i < players.size(); i++) {
+            Player player = Bukkit.getPlayer(players.get(i));
+            player.teleport(lobbyLocation);
+            player.getActivePotionEffects().forEach(potionEffect -> player.removePotionEffect(potionEffect.getType()));
+            player.getInventory().clear();
+            player.setFoodLevel(20);
+            player.setLevel(0);
+
+            if (state == GameState.LIVE) {
+                if (game.isRunner(player)) {
+                    game.getRunner(player).cleanup();
+                } else {
+                    game.getKiller().cleanup();
+                }
+            }
         }
 
         //Reset Generators
@@ -118,9 +124,7 @@ public class Arena {
     public void removePlayer(Player player, RemovalTypes remove) {
         players.remove(player.getUniqueId());
         player.teleport(lobbyLocation);
-
         player.getActivePotionEffects().forEach(potionEffect -> player.removePotionEffect(potionEffect.getType()));
-
         player.getInventory().clear();
         player.setFoodLevel(20);
         player.setLevel(0);
@@ -128,8 +132,13 @@ public class Arena {
         if (state == GameState.LIVE) {
             if (game.getTeam() != null) {
                 game.getTeam().removeEntry(player.getName());
-                game.cancelInvisTask(player);
             }
+        }
+
+        if (game.isRunner(player)) {
+            game.getRunner(player).cleanup();
+        } else {
+            game.getKiller().cleanup();
         }
 
         switch (remove) {
@@ -137,7 +146,7 @@ public class Arena {
             case DISCONNECTED:
                 player.setHealth(20);
                 if (state == GameState.LIVE) {
-                    if (players.size() == 0 || game.getKiller().equals(player)) {
+                    if (players.size() == 0 || game.getKiller().player.equals(player)) {
                         sendMessage(ChatColor.GREEN + "The killer has disconnected. The game ended.");
                         reset();
                         return;
@@ -149,7 +158,7 @@ public class Arena {
                             Bukkit.getServer().broadcastMessage(game.getKiller().getName() + ChatColor.GREEN + " won as the Killer in arena: " + ChatColor.WHITE + name);
                             reset();
                         } else {
-                            game.getRunners().remove(player);
+                            game.removeRunner(player);
                         }
                     }
                 }
@@ -167,15 +176,15 @@ public class Arena {
                             reset();
                         } else {
                             player.sendMessage(ChatColor.RED + "You were not able to escape!");
-                            game.getRunners().remove(player);
+                            game.removeRunner(player);
+                            //force into spectator
                         }
                     }
                 }
                 break;
             case ESCAPED:
-                player.setHealth(20);
                 if (state == GameState.LIVE) {
-                    if (players.size() == 0 || game.getKiller().equals(player)) {
+                    if (players.size() == 0 || game.getKiller().player.equals(player)) {
                         reset();
                     }
 
@@ -185,7 +194,8 @@ public class Arena {
                             reset();
                         } else {
                             player.sendMessage(ChatColor.GREEN + "You successfully escaped!");
-                            game.getRunners().remove(player);
+                            game.removeRunner(player);
+                            //force into spectator
                         }
                     }
                 }
