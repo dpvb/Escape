@@ -1,7 +1,7 @@
 # Escape by Bungoh
-required-players: 4
+required-players: 5
 countdown-timer: 30
-generator-block: "REDSTONE_BLOCK"
+generator-block: "TARGET"
 generator-amount: 7
 generator-win-requirement: 5
 

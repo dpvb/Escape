@@ -4,6 +4,7 @@ import com.bungoh.escape.Escape;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.*;
@@ -13,7 +14,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 public class GameListener implements Listener {
 
@@ -60,61 +60,27 @@ public class GameListener implements Listener {
         }
     }
 
-    //Killer Damage Onto Runners
+    //Disable PVP
     @EventHandler
-    public void playerHitEvent(EntityDamageByEntityEvent e) {
+    public void playerHitPlayer(EntityDamageByEntityEvent e) {
         if (e.getEntity() instanceof Player && e.getDamager() instanceof Player) {
-            Player victim = (Player) e.getEntity();
-            Player damager = (Player) e.getDamager();
+            Player v = (Player) e.getEntity();
+            Player d = (Player) e.getDamager();
 
-            //Are both of them in game
-            if (!Manager.isPlaying(victim) || !Manager.isPlaying(damager)) {
+            if (!Manager.isPlaying(v) || !Manager.isPlaying(d)) {
                 return;
             }
 
-            //Are they in the same game
-            if (!Manager.getArena(victim).equals(Manager.getArena(damager))) {
+            if (!Manager.getArena(v).equals(Manager.getArena(d))) {
                 return;
             }
 
-            Arena arena = Manager.getArena(victim);
-
-            if (arena.getState() != GameState.LIVE) {
-                e.setCancelled(true);
-                return;
-            }
-
-            //Cancel the event if the damager is not the killer
-            if (!arena.getGame().getKiller().equals(damager)) {
-                e.setCancelled(true);
-                return;
-            }
-
-            //Check if hit is in cooldown
-            if (!arena.getGame().getHitCooldown()) {
-                //Deal Damage
-                e.setDamage(10);
-
-                //Give Runner Movement Speed and Killer Slowness
-                damager.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 50, 4));
-                if (victim.getHealth() > 10) {
-                    victim.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 3));
-                }
-
-                arena.getGame().setHitCooldown(true);
-
-                //Setup Task
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        arena.getGame().setHitCooldown(false);
-                    }
-                }.runTaskLaterAsynchronously(Escape.getPlugin(), arena.getGame().getHitCooldownLen());
-            } else {
+            if (Manager.getArena(v).getState() != GameState.LIVE) {
                 e.setCancelled(true);
             }
         }
     }
+
 
     //No Hunger Depletion while in an Arena
     @EventHandler
@@ -143,7 +109,7 @@ public class GameListener implements Listener {
             return;
         }
 
-        if (!Manager.getArena(p).getGame().getRunners().contains(p)) {
+        if (!Manager.getArena(p).getGame().isRunner(p)) {
             return;
         }
 
@@ -157,7 +123,7 @@ public class GameListener implements Listener {
     public void killerNoItemSwap(PlayerItemHeldEvent e) {
         Player player = e.getPlayer();
         if (Manager.isPlaying(player)) {
-            if (Manager.getArena(player).getState() == GameState.LIVE && Manager.getArena(player).getGame().getKiller().equals(player)) {
+            if (Manager.getArena(player).getState() == GameState.LIVE && Manager.getArena(player).getGame().getKiller().player.equals(player)) {
                 e.getPlayer().getInventory().setHeldItemSlot(0);
             }
         }
@@ -168,7 +134,7 @@ public class GameListener implements Listener {
     public void killerNoOffhand(PlayerSwapHandItemsEvent e) {
         Player player = e.getPlayer();
         if (Manager.isPlaying(player)) {
-            if (Manager.getArena(player).getState() == GameState.LIVE && Manager.getArena(player).getGame().getKiller().equals(player)) {
+            if (Manager.getArena(player).getState() == GameState.LIVE && Manager.getArena(player).getGame().getKiller().player.equals(player)) {
                 e.setCancelled(true);
             }
         }
@@ -186,47 +152,43 @@ public class GameListener implements Listener {
         }
     }
 
-    //Listen for Killer Reveal // Runner Invis
-    @EventHandler
-    public void playerInteractEvent(PlayerInteractEvent e) {
-        Player player = e.getPlayer();
-
-        if (Manager.isPlaying(player)) {
-            Arena arena = Manager.getArena(player);
-            if (arena.getState() == GameState.LIVE) {
-                Game game = arena.getGame();
-
-                if (e.getItem() == null) {
-                    return;
-                }
-
-                if (game.getKiller().equals(player)) {
-
-                    if (e.getItem().getType().equals(Material.DIAMOND_SWORD) && e.getHand() == EquipmentSlot.HAND && (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)) {
-                        game.revealRunners();
-                    }
-                } else {
-                    if (e.getItem().getType().equals(Material.INK_SAC) && e.getHand() == EquipmentSlot.HAND && (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)) {
-                        game.runnerInvis(player);
-                    }
-                }
-            }
-        }
-    }
-
     //Runner Killed Event
     @EventHandler
     public void runnerDeath(PlayerDeathEvent e) {
         Player p = e.getEntity();
 
         if (Manager.isPlaying(p) && Manager.getArena(p).getState() == GameState.LIVE) {
-            if (Manager.getArena(p).getGame().getRunners().contains(p)) {
+            if (Manager.getArena(p).getGame().isRunner(p)) {
                 Manager.getArena(p).getGame().runnerKilled(p);
                 e.getDrops().clear();
                 e.setDeathMessage("");
+                /*
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        p.spigot().respawn();
+                    }
+                }.runTaskLater(Escape.getPlugin(), 1L);
+                 */
+
             }
         }
     }
+
+    /*
+    @EventHandler
+    public void runnerRespawn(PlayerRespawnEvent e) {
+        Player p = e.getPlayer();
+
+        if (Manager.isPlaying(p)) {
+            if (Manager.getArena(p).getState() == GameState.LIVE) {
+                e.setRespawnLocation(Manager.getArena(p).getGame().getKiller().getLocation());
+            } else {
+                e.setRespawnLocation(Manager.getArena(p).getLobbyLocation());
+            }
+        }
+    }
+     */
 
     //No Item Drop in Game
     @EventHandler
