@@ -29,7 +29,7 @@ public class Countdown extends BukkitRunnable {
         }
 
         if (seconds <= 10 || seconds % 5 == 0) {
-            arena.sendMessage(ChatColor.AQUA + "Game will start in " + seconds + " seconds.");
+            arena.sendMessage(ChatColor.GREEN + "Game will start in " + ChatColor.YELLOW + seconds + ChatColor.GREEN + " seconds.");
         }
 
         if (arena.getPlayers().size() < ConfigFile.getRequiredPlayers()) {

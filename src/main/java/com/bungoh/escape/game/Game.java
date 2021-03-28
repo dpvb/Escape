@@ -23,21 +23,23 @@ public class Game {
     private Arena arena;
     private Player killer;
     private Set<Player> runners;
+    private Set<Player> spectators;
     private Set<Generator> completedGenerators;
     private Particle.DustOptions doorParticleOptions;
     private BukkitTask particleTask;
     private BukkitTask killerHeartbeat;
     private BukkitTask revealCooldown;
     private HashMap<Player, BukkitTask> invisTasks;
+    private HashMap<Player, Boolean> runnerInvisCooldown;
     private boolean escapable;
     private boolean killerRevealCooldown;
-    private HashMap<Player, Boolean> runnerInvisCooldown;
+    private boolean hitCooldown;
     private int runnerInvisCooldownLen;
     private int killerRevealCooldownLen;
+    private int hitCooldownLen;
     private Team team;
     private Sound heartbeatSound = Sound.BLOCK_NOTE_BLOCK_BASEDRUM;
-    private boolean hitCooldown;
-    private int hitCooldownLen;
+
 
     public Game(Arena arena) {
         this.arena = arena;
@@ -52,6 +54,9 @@ public class Game {
 
         //Initialize all Players into Respective Roles
         setupKillerAndRunners();
+
+        //Create Empty Spectator Set
+        spectators = new HashSet<>();
 
         //Setup Generators
         for (Generator g : arena.getGenerators()) {
@@ -89,6 +94,11 @@ public class Game {
             for (Player p: invisTasks.keySet()) {
                 invisTasks.get(p).cancel();
             }
+        }
+
+        for (UUID uuid : arena.getPlayers()) {
+            Player p = Bukkit.getPlayer(uuid);
+            //resetSpectator(p);
         }
     }
 
@@ -228,11 +238,13 @@ public class Game {
 
     public void runnerEscaped(Player player) {
         arena.sendMessage(player.getName() + ChatColor.GREEN + " has escaped!");
+        //spectate(player);
         arena.removePlayer(player, RemovalTypes.ESCAPED);
     }
 
     public void runnerKilled(Player player) {
         arena.sendMessage(player.getName() + ChatColor.RED + " has been killed!");
+        //spectate(player);
         arena.removePlayer(player, RemovalTypes.KILLED);
     }
 
@@ -311,6 +323,32 @@ public class Game {
             player.sendMessage(ChatColor.RED + "Invis is on cooldown!");
         }
     }
+
+    /*
+    public void spectate(Player player) {
+        //Add to Spectator Set
+        spectators.add(player);
+        //Let Player Fly
+        player.setFlying(true);
+        //Hide Player from Everyone Else in the Arena
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.hidePlayer(Escape.getPlugin(), player);
+        }
+        //Teleport Player to the Killer
+        player.teleport(killer.getLocation());
+    }
+
+    public void resetSpectator(Player player) {
+        if (spectators.contains(player)) {
+            player.setFlying(false);
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                p.showPlayer(Escape.getPlugin(), player);
+            }
+            spectators.remove(player);
+        }
+    }
+
+     */
 
     public void cancelInvisTask(Player player) {
         if (getInvisTasks().containsKey(player)) {
