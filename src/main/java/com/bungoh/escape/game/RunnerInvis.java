@@ -44,7 +44,7 @@ public class RunnerInvis extends RunnerAbility {
 
     @Override
     public void use() {
-        if (timer == 0) {
+        if (timer == -1) {
             Player p = runner.player;
 
             p.sendMessage(ChatColor.RED + "You went invis for 3 seconds!");
@@ -60,11 +60,14 @@ public class RunnerInvis extends RunnerAbility {
                     if (timer == 0) {
                         p.sendMessage(ChatColor.GREEN + "Your invis ability is back up!");
                         cancel();
+                        timer = -1;
                     } else {
                         timer--;
                     }
 
-                    p.setLevel(timer);
+                    if (timer != -1) {
+                        p.setLevel(timer);
+                    }
                 }
             }.runTaskTimerAsynchronously(Escape.getPlugin(), 0L, 20L);
 

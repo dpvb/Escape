@@ -84,7 +84,7 @@ public class Killer extends GameParticipant {
         }
 
         public void use() {
-            if (timer == 0) {
+            if (timer == -1) {
                 player.sendMessage(ChatColor.RED + "Runners have been revealed!");
                 player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 100, 1));
 
@@ -100,11 +100,14 @@ public class Killer extends GameParticipant {
                         if (timer == 0) {
                             player.sendMessage(ChatColor.GREEN + "Your Reveal is back up!");
                             cancel();
+                            timer = -1;
                         } else {
                             timer--;
                         }
 
-                        player.setLevel(timer);
+                        if (timer != -1) {
+                            player.setLevel(timer);
+                        }
                     }
                 }.runTaskTimerAsynchronously(Escape.getPlugin(), 0L, 20L);
 
