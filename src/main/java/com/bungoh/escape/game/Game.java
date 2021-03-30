@@ -60,8 +60,8 @@ public class Game {
         createEscapeDoor();
 
         //Send Message
-        arena.sendMessage(ChatColor.GREEN + "The game has started!");
-        arena.sendMessage(killer.getName() + ChatColor.GREEN + " is the " + ChatColor.RED + "killer!");
+        arena.sendMessage(ConfigFile.getPrefix() + " " + ChatColor.GREEN + "The game has started!");
+        arena.sendMessage(ConfigFile.getPrefix() + " " + killer.getName() + ChatColor.GREEN + " is the " + ChatColor.RED + "killer!");
     }
 
     public void cleanup() {
@@ -96,7 +96,7 @@ public class Game {
 
     public void generatorCompleted(Generator generator) {
         completedGenerators.add(generator);
-        arena.sendMessage(ChatColor.GREEN + "A generator has been completed! (" + completedGenerators.size() + "/" + ConfigFile.getGeneratorWinRequirement() + ")");
+        arena.sendMessage(ConfigFile.getPrefix() + " " + ChatColor.GREEN + "A generator has been completed! (" + completedGenerators.size() + "/" + ConfigFile.getGeneratorWinRequirement() + ")");
         for (UUID u : arena.getPlayers()) {
             Player p = Bukkit.getPlayer(u);
             p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
@@ -156,12 +156,12 @@ public class Game {
 
     private void openEscapeDoor() {
         escapable = true;
-        arena.sendMessage(ChatColor.GREEN + "The exit has been opened! Find a black door with white particles!");
+        arena.sendMessage(ConfigFile.getPrefix() + " " + ChatColor.GREEN + "The exit has been opened! Find a black door with white particles!");
         doorParticleOptions = new Particle.DustOptions(Color.WHITE, 1);
     }
 
     public void runnerEscaped(Player player) {
-        arena.sendMessage(player.getName() + ChatColor.GREEN + " has escaped!");
+        arena.sendMessage(ConfigFile.getPrefix() + " " + player.getName() + ChatColor.GREEN + " has escaped!");
         getRunner(player).cleanup();
         removeRunner(player);
         addSpectator(player);
@@ -169,7 +169,7 @@ public class Game {
     }
 
     public void runnerKilled(Player player) {
-        arena.sendMessage(player.getName() + ChatColor.RED + " has been killed!");
+        arena.sendMessage(ConfigFile.getPrefix() + " " + player.getName() + ChatColor.RED + " has been killed!");
         getRunner(player).cleanup();
         removeRunner(player);
         addSpectator(player);
@@ -183,7 +183,7 @@ public class Game {
     }
 
     public void gameEnd() {
-        Bukkit.broadcastMessage(ChatColor.GREEN + "The game in Arena " + ChatColor.RED + arena.getName() + ChatColor.GREEN + " has just finished!");
+        Bukkit.broadcastMessage(ConfigFile.getPrefix() + " " + ChatColor.GREEN + "The game in Arena " + ChatColor.RED + arena.getName() + ChatColor.GREEN + " has just finished!");
         arena.reset();
     }
 

@@ -45,7 +45,7 @@ public class ArenaJoinCommand extends SubCommand {
                 player.sendMessage(ConfigFile.getMessage(Messages.ARENA_DOES_NOT_EXIST.getPath()));
             }
         } else {
-            player.sendMessage(ChatColor.RED + "Invalid usage! Use " + getSyntax());
+            player.sendMessage(ConfigFile.getPrefix() + " " + ChatColor.RED + "Invalid usage! Use " + getSyntax());
         }
 
     }

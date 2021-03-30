@@ -1,6 +1,8 @@
 package com.bungoh.escape.files;
 
 import com.bungoh.escape.Escape;
+import com.bungoh.escape.utils.Messages;
+import net.bytebuddy.build.ToStringPlugin;
 import org.bukkit.ChatColor;
 
 public class ConfigFile {
@@ -28,10 +30,14 @@ public class ConfigFile {
 
     public static int getGeneratorWinRequirement() { return plugin.getConfig().getInt("generator-win-requirement"); }
 
+    public static String getPrefix() {
+        return ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString(Messages.PREFIX.getPath()) + "&r");
+    }
+
     public static String getMessage(String path) {
         String msg = plugin.getConfig().getString(path);
         if (msg != null) {
-            return ChatColor.translateAlternateColorCodes('&', msg);
+            return ChatColor.translateAlternateColorCodes('&', getPrefix() + " " + msg);
         }
         return "";
     }

@@ -41,7 +41,7 @@ public class ArenaCreateCommand extends SubCommand {
                     break;
             }
         } else {
-            player.sendMessage(ChatColor.RED + "Invalid Usage! Use " + getSyntax());
+            player.sendMessage(ConfigFile.getPrefix() + " " + ChatColor.RED + "Invalid Usage! Use " + getSyntax());
         }
 
     }

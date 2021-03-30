@@ -40,7 +40,7 @@ public class ArenaSetEscapeLocationCommand extends SubCommand {
                     player.sendMessage(ConfigFile.getMessage(Messages.UNEXPECTED_ERROR.getPath()));
             }
         } else {
-            player.sendMessage(ChatColor.RED + "Invalid usage! Use " + getSyntax());
+            player.sendMessage(ConfigFile.getPrefix() + " " + ChatColor.RED + "Invalid usage! Use " + getSyntax());
         }
     }
 }

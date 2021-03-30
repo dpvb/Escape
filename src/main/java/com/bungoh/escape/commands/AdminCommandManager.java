@@ -1,7 +1,9 @@
 package com.bungoh.escape.commands;
 
 import com.bungoh.escape.commands.adminsubcommands.*;
+import com.bungoh.escape.files.ConfigFile;
 import com.bungoh.escape.utils.Messages;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -33,18 +35,25 @@ public class AdminCommandManager implements CommandExecutor {
 
             if (p.hasPermission("escape.admin")) {
                 if (args.length > 0) {
+                    boolean isCommand = false;
                     for (SubCommand subcommand : subcommands) {
                         if (args[0].equalsIgnoreCase(subcommand.getName())) {
+                            isCommand = true;
                             subcommand.perform(p, args);
                         }
                     }
-                } else {
-                    p.sendMessage("----------------------");
-                    p.sendMessage("Escape Admin Commands:");
-                    for (SubCommand subcommand : subcommands) {
-                        p.sendMessage(subcommand.getSyntax() + " - " + subcommand.getDescription());
+
+                    if (!isCommand) {
+                        p.sendMessage(ConfigFile.getPrefix() + " " + ChatColor.RED + "That was not a valid command argument!");
                     }
-                    p.sendMessage("----------------------");
+                } else {
+                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&8&l========================"));
+                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&lEscape Admin Commands:"));
+                    for (SubCommand subcommand : subcommands) {
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                                "&c" + subcommand.getSyntax() + "&7 - " + subcommand.getDescription()));
+                    }
+                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&8&l========================"));
                 }
             }
         }

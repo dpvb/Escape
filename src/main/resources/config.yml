@@ -5,6 +5,8 @@ generator-block: "TARGET"
 generator-amount: 7
 generator-win-requirement: 5
 
+prefix: "&8&l[&c&lEscape&8&l]"
+
 messages:
   arena_does_not_exist: "&cThat arena does not exist!"
   arena_already_exists: "&cAn arena with that name already exists!"

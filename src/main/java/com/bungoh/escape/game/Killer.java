@@ -1,6 +1,7 @@
 package com.bungoh.escape.game;
 
 import com.bungoh.escape.Escape;
+import com.bungoh.escape.files.ConfigFile;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -85,7 +86,7 @@ public class Killer extends GameParticipant {
 
         public void use() {
             if (timer == -1) {
-                player.sendMessage(ChatColor.RED + "Runners have been revealed!");
+                player.sendMessage(ConfigFile.getPrefix() + " " + ChatColor.RED + "Runners have been revealed!");
                 player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 100, 1));
 
                 for (Runner r : game.getRunners()) {
@@ -112,7 +113,7 @@ public class Killer extends GameParticipant {
                 }.runTaskTimerAsynchronously(Escape.getPlugin(), 0L, 20L);
 
             } else {
-                player.sendMessage(ChatColor.RED + "Reveal is on cooldown!");
+                player.sendMessage(ConfigFile.getPrefix() + " " + ChatColor.RED + "Reveal is on cooldown!");
             }
         }
 

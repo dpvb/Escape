@@ -1,9 +1,9 @@
 package com.bungoh.escape.commands.basesubcommands;
 
 import com.bungoh.escape.commands.SubCommand;
+import com.bungoh.escape.files.ConfigFile;
 import com.bungoh.escape.game.Arena;
 import com.bungoh.escape.game.Manager;
-import com.bungoh.escape.game.RemovalTypes;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -31,11 +31,13 @@ public class ArenaLeaveCommand extends SubCommand {
             if (Manager.isPlaying(player)) {
                 Arena arena = Manager.getArena(player);
                 arena.removePlayer(player);
-                arena.sendMessage(player.getName() + ChatColor.GREEN + " has left the game!");
-                player.sendMessage(ChatColor.GREEN + "You left the game!");
+                arena.sendMessage(ConfigFile.getPrefix() + " " + player.getName() + ChatColor.GREEN + " has left the game!");
+                player.sendMessage(ConfigFile.getPrefix() + " " + ChatColor.GREEN + "You left the game!");
+            } else {
+                player.sendMessage(ConfigFile.getPrefix() + " " + ChatColor.RED + "You are not in a game!");
             }
         } else {
-            player.sendMessage(ChatColor.RED + "Invalid usage! Use " + getSyntax());
+            player.sendMessage(ConfigFile.getPrefix() + " " + ChatColor.RED + "Invalid usage! Use " + getSyntax());
         }
 
     }

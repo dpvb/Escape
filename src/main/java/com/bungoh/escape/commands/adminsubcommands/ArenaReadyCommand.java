@@ -56,7 +56,7 @@ public class ArenaReadyCommand extends SubCommand {
                     break;
             }
         } else {
-            player.sendMessage(ChatColor.RED + "Invalid usage! Use " + getSyntax());
+            player.sendMessage(ConfigFile.getPrefix() + " " + ChatColor.RED + "Invalid usage! Use " + getSyntax());
         }
 
     }

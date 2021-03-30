@@ -26,7 +26,7 @@ public class Runner extends GameParticipant {
 
     private void init() {
         //Select Runner Invis Ability
-        runnerAbility = new RunnerInvis(this);
+        runnerAbility = new RunnerCloak(this);
         player.getInventory().setItem(0, runnerAbility.item);
 
         //Setup Killer Heartbeat

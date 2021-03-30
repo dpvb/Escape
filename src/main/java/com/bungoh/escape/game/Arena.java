@@ -99,7 +99,7 @@ public class Arena {
     public void addPlayer(Player player) {
         players.add(player.getUniqueId());
         player.teleport(lobbyLocation);
-        sendMessage(player.getName() + ChatColor.GREEN + " has joined.");
+        sendMessage(ConfigFile.getPrefix() + " " + player.getName() + ChatColor.GREEN + " has joined.");
 
         player.setHealth(20);
         player.setFoodLevel(20);

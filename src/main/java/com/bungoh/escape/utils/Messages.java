@@ -1,7 +1,10 @@
 package com.bungoh.escape.utils;
 
+import com.bungoh.escape.files.ConfigFile;
+
 public enum Messages {
 
+    PREFIX("prefix"),
     ARENA_DOES_NOT_EXIST("messages.arena_does_not_exist"),
     ARENA_ALREADY_EXISTS("messages.arena_already_exists"),
     ARENA_NOT_SETUP("messages.arena_not_setup"),
