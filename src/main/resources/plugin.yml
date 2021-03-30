@@ -3,6 +3,7 @@ version: ${project.version}
 main: com.bungoh.escape.Escape
 api-version: 1.16
 authors: [ Bungoh ]
+depend: [ProtocolLib]
 description: Escape Minigame inspired by Dead by Daylight
 
 commands:
