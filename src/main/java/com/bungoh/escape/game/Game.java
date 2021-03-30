@@ -41,6 +41,12 @@ public class Game {
         //Initialize all Players into Respective Roles
         setupKillerAndRunners();
 
+        System.out.println("Killer " + killer.getName());
+        System.out.println("Runners: ");
+        for (Runner runner: runners) {
+            System.out.println(runner.getName());
+        }
+
         //Create Empty Spectator Set
         spectators = new HashSet<>();
 
@@ -59,13 +65,32 @@ public class Game {
     }
 
     public void cleanup() {
+        //Delete the team that allows for no nametags
         if (team != null) {
             team.getEntries().forEach(s -> team.removeEntry(s));
             team.unregister();
         }
 
+        //Disable the escape door particle task
         if (particleTask != null) {
             particleTask.cancel();
+        }
+
+        //Cleanup each type of player in the game
+        if (killer != null) {
+            killer.cleanup();
+        }
+
+        if (runners != null) {
+            for (Runner r : runners) {
+                r.cleanup();
+            }
+        }
+
+        if (spectators != null) {
+            for (Spectator s : spectators) {
+                s.cleanup();
+            }
         }
     }
 
@@ -137,12 +162,29 @@ public class Game {
 
     public void runnerEscaped(Player player) {
         arena.sendMessage(player.getName() + ChatColor.GREEN + " has escaped!");
-        arena.removePlayer(player, RemovalTypes.ESCAPED);
+        getRunner(player).cleanup();
+        removeRunner(player);
+        addSpectator(player);
+        checkGameConditions();
     }
 
     public void runnerKilled(Player player) {
         arena.sendMessage(player.getName() + ChatColor.RED + " has been killed!");
-        arena.removePlayer(player, RemovalTypes.KILLED);
+        getRunner(player).cleanup();
+        removeRunner(player);
+        addSpectator(player);
+        checkGameConditions();
+    }
+
+    public void checkGameConditions() {
+        if (runners.size() == 0 || killer == null) {
+            gameEnd();
+        }
+    }
+
+    public void gameEnd() {
+        Bukkit.broadcastMessage(ChatColor.GREEN + "The game in Arena " + ChatColor.RED + arena.getName() + ChatColor.GREEN + " has just finished!");
+        arena.reset();
     }
 
     private void prepareScoreboard() {
@@ -172,6 +214,17 @@ public class Game {
         }
     }
 
+    public void removePlayer(Player player) {
+        if (killer.player.equals(player)) {
+            getKiller().cleanup();
+            killer = null;
+        } else if (isRunner(player)) {
+            removeRunner(player);
+        } else {
+            removeSpectator(player);
+        }
+    }
+
     public Killer getKiller() {
         return killer;
     }
@@ -192,12 +245,24 @@ public class Game {
 
     public void removeRunner(Player player) {
         if (runners != null) {
-            runners.removeIf(r -> r.player.equals(player));
+            Runner del = null;
+            for (Runner r : runners) {
+                Player p = r.player;
+                if (p.equals(player)) {
+                    r.cleanup();
+                    del = r;
+                }
+            }
+            runners.remove(del);
         }
     }
 
     public Runner getRunner(Player player) {
         return runners.stream().filter(r -> r.player.equals(player)).findAny().orElse(null);
+    }
+
+    public Spectator getSpectator(Player player) {
+        return spectators.stream().filter(s -> s.player.equals(player)).findAny().orElse(null);
     }
 
     public boolean isEscapable() {

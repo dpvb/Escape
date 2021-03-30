@@ -1,19 +1,11 @@
 package com.bungoh.escape.game;
 
-import com.bungoh.escape.Escape;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class GameListener implements Listener {
 
@@ -22,7 +14,7 @@ public class GameListener implements Listener {
         Player player = e.getPlayer();
 
         if (Manager.isPlaying(player)) {
-            Manager.getArena(player).removePlayer(player, RemovalTypes.DISCONNECTED);
+            Manager.getArena(player).removePlayer(player);
         }
     }
 
@@ -162,33 +154,9 @@ public class GameListener implements Listener {
                 Manager.getArena(p).getGame().runnerKilled(p);
                 e.getDrops().clear();
                 e.setDeathMessage("");
-                /*
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        p.spigot().respawn();
-                    }
-                }.runTaskLater(Escape.getPlugin(), 1L);
-                 */
-
             }
         }
     }
-
-    /*
-    @EventHandler
-    public void runnerRespawn(PlayerRespawnEvent e) {
-        Player p = e.getPlayer();
-
-        if (Manager.isPlaying(p)) {
-            if (Manager.getArena(p).getState() == GameState.LIVE) {
-                e.setRespawnLocation(Manager.getArena(p).getGame().getKiller().getLocation());
-            } else {
-                e.setRespawnLocation(Manager.getArena(p).getLobbyLocation());
-            }
-        }
-    }
-     */
 
     //No Item Drop in Game
     @EventHandler
