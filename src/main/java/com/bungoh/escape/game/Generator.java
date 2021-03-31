@@ -69,7 +69,7 @@ public class Generator {
                         if (arena.getGame().isRunner(p)) {
                             Block target = p.getTargetBlockExact(radius);
                             if (target != null && target.equals(block)) {
-                                update += 2;
+                                update += 3;
                             }
                         }
                     }
