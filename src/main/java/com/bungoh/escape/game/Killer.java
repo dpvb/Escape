@@ -80,8 +80,8 @@ public class Killer extends GameParticipant {
         protected BukkitTask task;
 
         public KillerReveal() {
-            cooldown = 20;
-            timer = 0;
+            cooldown = 25;
+            timer = -1;
         }
 
         public void use() {

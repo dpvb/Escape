@@ -34,8 +34,8 @@ public class Runner extends GameParticipant {
             @Override
             public void run() {
                 long d = (long) game.getKiller().getLocation().distance(getLocation());
-                if (d <= 20) {
-                    long ticks = 8 - (6 * (20 - d) / 20);
+                if (d <= 30) {
+                    long ticks = 9 - (7 * (30 - d) / 30);
                     player.playSound(player.getLocation(), game.heartbeatSound, SoundCategory.PLAYERS, 1, 1);
                     new BukkitRunnable() {
                         @Override

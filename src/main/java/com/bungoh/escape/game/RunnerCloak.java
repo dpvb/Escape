@@ -25,7 +25,7 @@ public class RunnerCloak extends RunnerAbility {
         super("Invisibility", 35, runner);
 
         //Cooldown Timer
-        timer = 0;
+        timer = -1;
 
         //Create the Item
         generateItem();

@@ -1,5 +1,6 @@
 package com.bungoh.escape.game;
 
+import com.bungoh.escape.Escape;
 import com.bungoh.escape.files.ConfigFile;
 import com.bungoh.escape.files.DataFile;
 import com.bungoh.escape.utils.InsufficientGeneratorAmount;
@@ -133,6 +134,10 @@ public class Arena {
         player.setHealth(20);
         player.setFoodLevel(20);
         player.setLevel(0);
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.showPlayer(Escape.getPlugin(), player);
+        }
 
         if (state == GameState.LIVE && game.getTeam() != null) {
             game.getTeam().removeEntry(player.getName());

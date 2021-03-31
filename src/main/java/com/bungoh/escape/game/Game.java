@@ -101,7 +101,7 @@ public class Game {
             Player p = Bukkit.getPlayer(u);
             p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
         }
-        if (completedGenerators.size() == ConfigFile.getGeneratorWinRequirement()) {
+        if (completedGenerators.size() >= ConfigFile.getGeneratorWinRequirement()) {
             openEscapeDoor();
             for (UUID u : arena.getPlayers()) {
                 Player p = Bukkit.getPlayer(u);
