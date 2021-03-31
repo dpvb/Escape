@@ -6,7 +6,7 @@
 
     <groupId>com.bungoh</groupId>
     <artifactId>Escape</artifactId>
-    <version>1.02</version>
+    <version>1.03</version>
     <packaging>jar</packaging>
 
     <name>Escape</name>

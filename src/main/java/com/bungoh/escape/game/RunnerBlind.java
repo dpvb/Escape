@@ -22,10 +22,10 @@ public class RunnerBlind extends RunnerAbility {
 
     public RunnerBlind(Runner runner) {
         //Call Superclass
-        super("Blind", 50, runner);
+        super("Blind", 40, runner);
 
         //Cooldown Timer
-        timer = 0;
+        timer = -1;
 
         //Generate the Item
         generateItem();
@@ -49,8 +49,8 @@ public class RunnerBlind extends RunnerAbility {
         if (timer == -1) {
             Player p = runner.player;
             Killer killer = Manager.getArena(p).getGame().getKiller();
-            p.sendMessage(ConfigFile.getPrefix() + " " + ChatColor.RED + "You blinded the Killer for 3 seconds!");
-            killer.player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 0));
+            p.sendMessage(ConfigFile.getPrefix() + " " + ChatColor.RED + "You blinded the Killer for 5 seconds!");
+            killer.player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 0));
             p.getInventory().setHeldItemSlot(1);
 
             timer = cooldown;
