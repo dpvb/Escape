@@ -7,6 +7,7 @@ import com.bungoh.escape.utils.InsufficientGeneratorAmount;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
@@ -71,12 +72,21 @@ public class Arena {
 
     //Completely reset the Arena
     public void reset() {
+        //Load the chunk
+        world.loadChunk(getLobbyLocation().getChunk());
         //Reset Players and Clean them Up
         for (int i = 0; i < players.size(); i++) {
             Player player = Bukkit.getPlayer(players.get(i));
             resetPlayer(player);
-            player.teleport(lobbyLocation);
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    player.teleport(lobbyLocation);
+                }
+            }.runTaskLater(Escape.getPlugin(), i + 2);
         }
+
+
 
         //Reset Generators
         if (generators != null) {

@@ -86,7 +86,7 @@ public class Generator {
                     arena.getWorld().spawnParticle(Particle.REDSTONE, v.toLocation(arena.getWorld()), 25, circleDust);
                 }
             }
-        }.runTaskTimerAsynchronously(Escape.getPlugin(), 0L, 20L);
+        }.runTaskTimer(Escape.getPlugin(), 0L, 20L);
     }
 
     public void setupHolograms() {

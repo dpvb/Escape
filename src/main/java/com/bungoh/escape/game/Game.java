@@ -5,6 +5,8 @@ import com.bungoh.escape.files.ConfigFile;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
@@ -102,11 +104,15 @@ public class Game {
             p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
         }
         if (completedGenerators.size() >= ConfigFile.getGeneratorWinRequirement()) {
+            //Open Escape Door and Play Sound
             openEscapeDoor();
             for (UUID u : arena.getPlayers()) {
                 Player p = Bukkit.getPlayer(u);
                 p.playSound(p.getLocation(), Sound.ENTITY_WITHER_DEATH, 1, 1);
             }
+
+            //Give Killer Speed 1 for the Rest of the Game
+            killer.player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0));
         }
     }
 

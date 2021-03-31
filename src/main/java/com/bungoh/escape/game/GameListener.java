@@ -6,6 +6,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 public class GameListener implements Listener {
 
@@ -154,6 +156,15 @@ public class GameListener implements Listener {
                 Manager.getArena(p).getGame().runnerKilled(p);
                 e.getDrops().clear();
                 e.setDeathMessage("");
+
+                //Make all Runner glow on Runner Death
+                Game g = Manager.getArena(p).getGame();
+                if (g.getRunners().size() != 0) {
+                    for (Runner runner : Manager.getArena(p).getGame().getRunners()) {
+                        runner.player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 40, 1));
+                    }
+                }
+
             }
         }
     }

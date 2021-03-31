@@ -160,7 +160,7 @@ public class Killer extends GameParticipant {
                     //Give Runner Movement Speed and Killer Slowness
                     d.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 50, 4));
                     if (v.getHealth() > 10) {
-                        v.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 3));
+                        v.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 1));
                     }
 
                     canHit = false;

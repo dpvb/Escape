@@ -6,7 +6,7 @@
 
     <groupId>com.bungoh</groupId>
     <artifactId>Escape</artifactId>
-    <version>1.03</version>
+    <version>1.04</version>
     <packaging>jar</packaging>
 
     <name>Escape</name>
@@ -71,7 +71,7 @@
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
+            <artifactId>spigot</artifactId>
             <version>1.16.5-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
