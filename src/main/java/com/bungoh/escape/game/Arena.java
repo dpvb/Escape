@@ -86,8 +86,6 @@ public class Arena {
             }.runTaskLater(Escape.getPlugin(), i + 2);
         }
 
-
-
         //Reset Generators
         if (generators != null) {
             for (Generator g : generators) {
@@ -141,6 +139,9 @@ public class Arena {
     public void resetPlayer(Player player) {
         player.getActivePotionEffects().forEach(potionEffect -> player.removePotionEffect(potionEffect.getType()));
         player.getInventory().clear();
+        if (player.isDead()) {
+            player.spigot().respawn();
+        }
         player.setHealth(20);
         player.setFoodLevel(20);
         player.setLevel(0);
