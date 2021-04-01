@@ -5,6 +5,10 @@ generator-block: "TARGET"
 generator-amount: 7
 generator-win-requirement: 5
 
+killer-reveal-cooldown: 20
+runner-invis-cooldown: 35
+runner-blind-cooldown: 40
+
 prefix: "&8&l[&c&lEscape&8&l]"
 
 messages:

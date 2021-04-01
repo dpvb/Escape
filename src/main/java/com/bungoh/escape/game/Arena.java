@@ -101,7 +101,6 @@ public class Arena {
             game.cleanup();
         }
         game = new Game(this);
-
         System.out.println("Arena " + name + " successfully reset.");
     }
 
@@ -137,11 +136,13 @@ public class Arena {
     }
 
     public void resetPlayer(Player player) {
-        player.getActivePotionEffects().forEach(potionEffect -> player.removePotionEffect(potionEffect.getType()));
-        player.getInventory().clear();
+
         if (player.isDead()) {
             player.spigot().respawn();
         }
+
+        player.getActivePotionEffects().forEach(potionEffect -> player.removePotionEffect(potionEffect.getType()));
+        player.getInventory().clear();
         player.setHealth(20);
         player.setFoodLevel(20);
         player.setLevel(0);
