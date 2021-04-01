@@ -30,6 +30,12 @@ public class ConfigFile {
 
     public static int getGeneratorWinRequirement() { return plugin.getConfig().getInt("generator-win-requirement"); }
 
+    public static int getKillerRevealCooldown() { return plugin.getConfig().getInt("killer-reveal-cooldown"); }
+
+    public static int getRunnerInvisCooldown() { return plugin.getConfig().getInt("runner-invis-cooldown"); }
+
+    public static int getRunnerBlindCooldown() { return plugin.getConfig().getInt("runner-blind-cooldown"); }
+
     public static String getPrefix() {
         return ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString(Messages.PREFIX.getPath()) + "&r");
     }

@@ -22,7 +22,7 @@ public class RunnerCloak extends RunnerAbility {
 
     public RunnerCloak(Runner runner) {
         //Call Superclass
-        super("Invisibility", 35, runner);
+        super("Invisibility", ConfigFile.getRunnerInvisCooldown(), runner);
 
         //Cooldown Timer
         timer = -1;

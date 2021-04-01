@@ -22,7 +22,7 @@ public class RunnerBlind extends RunnerAbility {
 
     public RunnerBlind(Runner runner) {
         //Call Superclass
-        super("Blind", 40, runner);
+        super("Blind", ConfigFile.getRunnerBlindCooldown(), runner);
 
         //Cooldown Timer
         timer = -1;
